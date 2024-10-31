@@ -1,0 +1,52 @@
+1984 Simulator
+
+Aesthetic:
+
+-Grey, bleak architecture, weather is the same every day - cloudy, no sun
+-Every person is dressed the same
+-Propaganda posters everywhere
+-No music, just ambient sounds and silence
+
+Game Story:
+
+-Players start as working in the Ministry of Truth. They can be either an editor of
+history, a surveillance officer, or a propaganda developer.
+
+-At Ministry of Truth, players interact with typewriters, redactors, and propaganda 
+distribution machines
+	-Each work area holds the potential for eavesdropping or spying on co-workers
+
+-Telescreens interrupt gameplay randomly with notices or to check player loyalty. If 
+telescreen catches during a rebellious action, the suspicion increases.
+
+-Initially, they get very mundane and repetitive tasks but eventually get faced with 
+ethically conflicting tasks such as rewriting history or creating propaganda. 
+
+-Players have a loyalty meter and a rebellion meter. Increasing the loyalty meter decreases
+suspicion but aligns you closer with the Party and brings you further from joining the
+rebellion. Increasing the rebellion meter increases suspicion but brings you closer to 
+joining the rebellion and getting freedom. Players also have a survival meter that depends
+on how much food and supplies they have.
+
+-Big Brother AI tracks players actions and raids home and brainwashes if too many
+rebellious activities. Rewards such as food or supplies for loyal actions.
+
+-Along the way, players get document fragments that reveal parts of the real truth that
+can unlock paths to the rebellion. They also build relationships with the NPCs in both
+the rebellion and those who are in the Party, which increases their loyalty meter or 
+rebellion meter.
+
+-Players play doublethink minigames in which they need to remember the real truth in the
+face of the Party's truth. As loyalty increases, player's experience distortion where
+real truths are blurred, while they become clearer as rebellion increases.
+
+-End game outcomes: 
+	-Loyalist ending: Player becomes too closely aligned with teh Party and is permanently
+	working for Big Brother OR player becomes too rebellious and gets brainwashed by 
+	Big Brother
+	-Rebellion ending: Player successfully joins the rebellion, but with high risk of
+	capture and torture
+	
+
+
+
