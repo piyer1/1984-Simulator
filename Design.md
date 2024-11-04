@@ -1,35 +1,35 @@
 # 1984 Simulator
 
 ## Aesthetic:
-- Grey, bleak architecture; weather is the same every day—cloudy, no sun.
-- Every person is dressed the same.
-- Propaganda posters everywhere.
+- Grey, bleak, Gothic architecture; weather is the same every day—cloudy, no sun.
+- Every person is dressed the same, grey pants, shirt, etc.
+- Propaganda posters everywhere, saying "big brother is watching"
 - No music, just ambient sounds and silence.
 
 ## Game Story:
-- Players start working in the Ministry of Truth. They can be either an editor of history, a surveillance officer, or a propaganda developer.
+- Players start working in the Ministry of Truth. They can be either an editor of history, a surveillance officer, or a propaganda developer, but are randomly assigned. However they appear to be given a choice, but all the options are the same.
 
 - At the Ministry of Truth, players interact with typewriters, redactors, and propaganda distribution machines.
-  - Each work area holds the potential for eavesdropping or spying on co-workers.
+  - Each work area holds the potential for eavesdropping or spying by co-workers, which could decrease loyalty meter if they catch you doing something suspicious. Co-workers are NPCs.
 
-- Telescreens interrupt gameplay randomly with notices or to check player loyalty. If a telescreen catches the player during a rebellious action, suspicion increases.
+- Telescreens interrupt gameplay randomly with notices or to check player loyalty. If a telescreen catches the player during a rebellious action, suspicion increases (too much suspicion and the Big Brother AI will torture you)
 
-- Initially, players receive very mundane and repetitive tasks but eventually face ethically conflicting tasks such as rewriting history or creating propaganda.
+- Players face ethically conflicting tasks such as rewriting history or creating propaganda. Players get a choice as to whether or not to do the action, but it will affect the meters described below.
 
 - Players have a loyalty meter and a rebellion meter. 
   - Increasing the loyalty meter decreases suspicion but aligns you closer with the Party and brings you further from joining the rebellion.
   - Increasing the rebellion meter increases suspicion but brings you closer to joining the rebellion and achieving freedom.
   - Players also have a survival meter that depends on how much food and supplies they have.
 
-- Big Brother AI tracks player actions and raids homes, brainwashing them if too many rebellious activities occur. Rewards such as food or supplies are given for loyal actions.
+- Big Brother AI tracks player actions and raids homes, brainwashing them in Room 101 in a cutscene if too many rebellious activities occur. Rewards such as food or supplies are given for loyal actions. If players do not have enough food and supplies, they starve, and the game ends with a cutscene showing the Party brainwashes everyone who knew them to erase their memory. 
 
 - Along the way, players collect document fragments that reveal parts of the real truth, which can unlock paths to the rebellion. They also build relationships with NPCs in both the rebellion and the Party, influencing their loyalty or rebellion meters.
 
-- Players engage in doublethink minigames, where they must remember the real truth in the face of the Party's truth. As loyalty increases, players experience distortion where real truths are blurred, while they become clearer as rebellion increases.
+- Players engage in doublethink minigames, where they must remember the real truth in the face of the Party's truth. As loyalty increases, players experience distortion where real truths are blurred and the whole image becomes blurrier, while they become clearer as rebellion increases.
 
 ## End Game Outcomes:
 - **Loyalist Ending:** Player becomes too closely aligned with the Party and is permanently working for Big Brother OR the player becomes too rebellious and gets brainwashed by Big Brother.
-- **Rebellion Ending:** Player successfully joins the rebellion but faces a high risk of capture and torture.
+- **Rebellion Ending:** Player successfully joins the rebellion and overthrows Big Brother.
 
 
 
