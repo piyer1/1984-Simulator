@@ -34,9 +34,9 @@
 
 
 ## Feedback:
-- Line 4: what kind of architecture? How about gothic?
-- Line 5: How are they dressed? How about pants and a shirt? No graphics of course. 
-- Line 6: What do the posters say? How about "birds are real animals, not drones"
+- Line 4: what kind of architecture? How about making an extremely dystopian setting where the buildings are purely functional and have no design/aesthetically pleasing aspects? They could all just be monotone, grey blocks.
+- Line 5: How are they dressed? How about pants and a shirt? No graphics of course. Using monotone colors could emphasize the lifelessness of the player and npcs.
+- Line 6: What do the posters say? How about "birds are real animals, not drones". You could make references to real conspiracies too, like the moon landing being faked, or the earth being flat
 - Line 10: How does the player decide the role they are given? Do they even have control over it or not? How about doing it in a character creation screen. and the joke is that all the options are the same because everyone looks the same. Mwahahaha
 - Line 13: Are co-workers NPCs or is this a multiplayer game? What kind of information do you get from spying/eavesdropping and why is this helpful to the player? 
 - Line 15: What does 'suspicion' do? At what level of sus does something happen to the player, and what is it that happens? Do different acts yield different amounts of suspicion? 
