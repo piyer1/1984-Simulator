@@ -1,3 +1,7 @@
+# **Technology Stack**
+
+---
+
 - **Programming Language**: JavaScript (main language for game logic and interactivity)
 - **Frontend UI and Framework**: React or Vue for component-based UI rendering
 - **Game Framework**: Impact.js for managing 2D game scenes and mechanics

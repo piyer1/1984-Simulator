@@ -1,168 +1,137 @@
-#### Class Structure
-
-- **GameManager**: 
-  - Manages game state, assigns player roles (Ministry positions), and tracks end conditions
-  - Communicates with **MeterManager** to update loyalty and rebellion meters
-
-- **Player**:
-  - Stores player-specific data such as loyalty, rebellion, and survival meters
-  - Interacts with the game world, choices, and events
-
-- **MinistryRole** (parent class):
-  - Base class for roles, with subclasses for `Editor`, `SurveillanceOfficer`, and `PropagandaDeveloper`
-  - **Methods**: `performAction()`, `updateSuspicion()`, `adjustMeter()`
-
-- **Telescreen**:
-  - Monitors player actions, triggering suspicion events based on player behavior
-  - Connects with **BigBrotherAI** when suspicion exceeds certain levels
-
-- **BigBrotherAI**:
-  - An AI manager tracking player actions and calling on other components (like Telescreens and NPCs) to create consequences if the suspicion threshold is met
-
-- **MeterManager**:
-  - Manages and updates loyalty, rebellion, and survival meters based on actions
-  - Independent meter objects track values
-
-- **NPC**:
-  - Manages NPC behaviors and spying actions on the player
-  - Updates loyalty or rebellion meters based on interactions with the player
-
-- **DocumentFragment**:
-  - JavaScript objects representing collectible documents revealing hidden truths and potentially unlocking rebellion paths
-
-- **DoublethinkMiniGame**:
-  - A Phaser-based minigame with distortions
-  - Changes appearance based on loyalty or rebellion meter adjustments
-
-- **EndingManager**:
-  - Evaluates game end conditions to display the appropriate final cutscene based on player actions
-
-#### Game Flow
-
-- **Initialization**:
-  - Sets up Phaser game scenes, assigns player roles, and initializes meters
-
-- **Gameplay**:
-  - **Meter Management**: Updates player’s loyalty, rebellion, and survival meters based on actions
-  - **Telescreen Interruptions**: Periodic interruptions to check player loyalty and initiate consequences
-  - **NPC Interactions**: Tracks player and NPC actions, adjusting suspicion and meters as needed
-  - **Big Brother AI Interventions**: Manages Big Brother’s monitoring and responses based on loyalty/rebellion balances
-
-- **Endgame**:
-  - Evaluates meter states and triggers one of the predefined ending scenarios based on the player’s decisions and final meter values
+# **1984 Simulator - Refined Architecture**
 
 ---
 
-
-
-
-
-
-
-
-
-### 2. Architecture (Detailed Class Structure)
-
-This section provides a full breakdown of each class, its methods, and responsibilities. Each class is designed to manage specific aspects of the game, facilitating modularity, reusability, and ease of maintenance.
-
----
-
-#### Class Structure
-
-1. **GameManager**
-   - **Purpose**: Oversees the overall game state, player role assignment, and transition between scenes. Interacts with MeterManager to monitor loyalty and rebellion meters and triggers events based on player actions and meter levels.
-   - **Methods**:
-     - `initializeGame()`: Initializes Phaser game scenes, assigns player roles, and resets meter values.
-     - `assignRole()`: Randomly assigns the player a role within the Ministry (Editor, Surveillance Officer, or Propaganda Developer).
-     - `updateGameState()`: Checks game conditions periodically (e.g., meter thresholds) and triggers necessary transitions or alerts.
-     - `endGame()`: Ends the game and invokes the EndingManager based on final meter levels and player choices.
-   - **Subclasses/Components**: GameManager is a top-level manager and does not contain subclasses, but it interacts heavily with other classes like Player, MeterManager, and BigBrotherAI.
-
-2. **Player**
-   - **Purpose**: Represents the player's character, tracking essential stats such as loyalty, rebellion, and survival levels. Handles player decisions and responses to events.
-   - **Methods**:
-     - `getStats()`: Returns the current stats (loyalty, rebellion, survival) for display or calculation purposes.
-     - `performAction(actionType)`: Executes an action (e.g., rewriting history, spying) based on the player’s role and updates relevant meters.
-     - `adjustMeter(meterType, value)`: Adjusts the specified meter by the given value (e.g., increasing loyalty or rebellion based on player actions).
-     - `displayWarning()`: Displays a UI warning to the player if they are nearing a suspicion threshold.
-   - **Subclasses/Components**: Player is a standalone class with no subclasses but works closely with MinistryRole and MeterManager.
-
-3. **MinistryRole** (Parent Class)
-   - **Purpose**: Acts as the base class for different roles within the Ministry, each with specific tasks and interactions.
-   - **Subclasses**:
-     - **Editor**: Handles tasks involving historical editing. 
-       - **Methods**:
-         - `editDocument()`: Allows the player to edit documents to align with the Party's version of truth, increasing loyalty.
-         - `analyzePropaganda()`: Runs a check to determine if the edited document triggers any suspicion.
-     - **SurveillanceOfficer**: Manages surveillance tasks such as spying on NPCs.
-       - **Methods**:
-         - `spyOnNPC(npcID)`: Spies on a specified NPC, adding suspicion if noticed, and adjusting loyalty or rebellion.
-         - `reportActivity()`: Allows the player to report NPC activity, which decreases rebellion but increases suspicion among other NPCs.
-     - **PropagandaDeveloper**: Focuses on tasks related to propaganda creation and distribution.
-       - **Methods**:
-         - `createPropaganda()`: Initiates propaganda creation, increasing loyalty.
-         - `distributePropaganda()`: Completes the distribution process and may trigger suspicion among NPCs if done poorly.
-
-4. **Telescreen**
-   - **Purpose**: Monitors player actions in real-time, triggering loyalty checks and suspicion events randomly.
-   - **Methods**:
-     - `triggerAlert()`: Generates a random loyalty alert, requiring the player to confirm their loyalty or risk suspicion.
-     - `monitorAction(action)`: Analyzes the player’s actions and determines if suspicion should be raised, signaling BigBrotherAI if necessary.
-     - `displayNotice(message)`: Displays notices or interruptions on the screen, simulating Party announcements and loyalty reinforcement.
-   - **Subclasses/Components**: No subclasses; functions as a standalone component integrated into the game’s UI layer.
-
-5. **BigBrotherAI**
-   - **Purpose**: Manages the Party's surveillance and behavioral tracking of the player. Responsible for triggering raids, suspicions, and punishments.
-   - **Methods**:
-     - `evaluateSuspicion()`: Monitors player actions and calculates suspicion level based on actions and meter changes.
-     - `initiateRaid()`: Executes a raid if suspicion reaches a critical level, affecting the player's survival meter.
-     - `brainwashPlayer()`: A final consequence if suspicion surpasses a threshold, ending the game or resetting player stats in extreme cases.
-     - `rewardLoyalty()`: Provides rewards (e.g., food, supplies) if the player shows consistent loyalty, reducing survival-related concerns.
-   - **Subclasses/Components**: No subclasses but interacts directly with Player and Telescreen classes.
-
-6. **MeterManager**
-   - **Purpose**: Manages all player meters, including loyalty, rebellion, and survival, and handles the adjustments based on player choices and events.
-   - **Methods**:
-     - `adjustMeter(meterType, amount)`: Adjusts the specified meter (e.g., loyalty, rebellion) by a certain amount.
-     - `getMeterValue(meterType)`: Returns the current value of a specified meter.
-     - `checkThresholds()`: Checks if any meter thresholds have been reached, signaling BigBrotherAI if necessary.
-   - **Subclasses/Components**: Contains **LoyaltyMeter**, **RebellionMeter**, and **SurvivalMeter** as individual instances with basic getter and setter methods.
-
-7. **NPC**
-   - **Purpose**: Represents non-player characters who can either spy on or interact with the player. NPCs influence loyalty and rebellion based on interactions.
-   - **Methods**:
-     - `interactWithPlayer(player)`: Initiates dialogue or interaction with the player, potentially affecting loyalty or rebellion based on responses.
-     - `increaseSuspicion()`: Raises the suspicion level if the NPC detects player actions that are anti-Party.
-     - `reportToBigBrother()`: Allows NPCs to report the player’s rebellious actions, increasing Big Brother’s suspicion level.
-   - **Subclasses**:
-     - **RebelNPC**: NPCs aligned with the rebellion; provide hints and support for rebellion activities.
-       - **Methods**:
-         - `shareDocument()`: Provides players with a document fragment that hints at the truth, encouraging rebellion.
-     - **PartyLoyalistNPC**: NPCs loyal to the Party; often spy on players and report suspicious activities.
-       - **Methods**:
-         - `monitorPlayer()`: Observes player actions, raising suspicion if they witness rebellious behaviors.
-
-8. **DocumentFragment**
-   - **Purpose**: Represents collectible items that reveal the true state of the Party and the world, potentially unlocking the rebellion pathway.
-   - **Methods**:
-     - `collectFragment(fragmentID)`: Adds a document fragment to the player’s collection.
-     - `revealTruth()`: Allows players to read the document, slightly increasing rebellion meter.
-   - **Subclasses/Components**: No subclasses; each fragment is a unique instance with properties such as `content` and `fragmentID`.
-
-9. **DoublethinkMiniGame**
-   - **Purpose**: A minigame that challenges the player to remember the real truth against the Party's propaganda. Increases distortion effects based on loyalty or rebellion levels.
-   - **Methods**:
-     - `initializeGame()`: Sets up the initial state of the minigame, including initial truth visibility.
-     - `increaseDistortion(level)`: Adjusts the visual distortion based on the player’s loyalty or rebellion meter levels.
-     - `completeChallenge()`: Evaluates the player’s performance in the minigame and adjusts meters accordingly.
-
-10. **EndingManager**
-    - **Purpose**: Manages game endings based on final player choices and meter levels.
-    - **Methods**:
-      - `evaluateEnding()`: Checks final meter levels and selects the appropriate ending.
-      - `triggerCutscene(endingType)`: Triggers a cutscene based on the chosen ending, displaying a loyalist or rebellion narrative.
-    - **Subclasses/Components**: No subclasses; works as a standalone manager coordinating with other classes.
+## **1. GameManager**
+- **Purpose**: Core controller of the game’s logic, managing game state, player interactions, and endgame scenarios. Oversees updates to player metrics, triggers events, and coordinates class interactions.
+- **Variables**:
+  - `playerRole`: Stores the role assigned to the player (e.g., "Editor", "Surveillance Officer", "Propaganda Developer").
+  - `gameState`: Current state of the game, e.g., `"active"`, `"paused"`, or `"ended"`.
+  - `meterValues`: An array that stores numeric values for player metrics that impact game progression and endings.
+  - `suspicionLevel`: Tracks the level of suspicion toward the player, triggering consequences from Big Brother as it increases.
+- **Methods**:
+  - `initializeGame()`: 
+    - Initializes game settings, assigns a random role to the player, resets all metrics (loyalty, rebellion, survival), and sets `suspicionLevel` to zero.
+    - Instantiates core classes (`Player`, `MinistryTaskManager`, `TelescreenAI`, `EndingManager`) and begins tracking game progress.
+  - `assignRole()`: 
+    - Randomly selects a role for the player from the available options and stores it in `playerRole`.
+    - Loads the relevant task data for the selected role into `MinistryTaskManager`.
+  - `updateGameState()`: 
+    - Regularly evaluates game conditions, checking if `suspicionLevel`, meters, or other thresholds have been reached.
+    - Calls `TelescreenAI.triggerAlert()` for random loyalty checks and `EndingManager.determineEnding()` if an end condition is met.
+    - Updates all game elements and timers, ensuring that necessary events (e.g., meter adjustments, new tasks) occur at specific intervals.
+  - `applyConsequences(action)`: 
+    - Takes an action parameter, evaluates its impact on player metrics, and adjusts `loyaltyMeter`, `rebellionMeter`, or `survivalMeter` accordingly.
+    - For each action, it modifies `suspicionLevel` based on its type (e.g., rebellious actions increase suspicion).
+    - Notifies `TelescreenAI` of updated `suspicionLevel` and checks if new thresholds are crossed.
+  - `endGame()`: 
+    - Finalizes the game by invoking `EndingManager` to assess metrics and determine the appropriate ending.
+    - Triggers the final cutscene, reflecting the player’s choices and loyalty/rebellion alignment.
 
 ---
 
-This architecture lays out a comprehensive structure for **1984 Simulator** in JavaScript. By defining distinct roles, each class remains focused on specific tasks, improving the game's organization, maintainability, and scalability.
+## **2. Player**
+- **Purpose**: Represents the player’s attributes and decision-making; stores player metrics and allows interaction with tasks and NPCs. Manages the impact of player choices on game metrics.
+- **Variables**:
+  - `loyaltyMeter`, `rebellionMeter`, `survivalMeter`: Numeric values reflecting player’s choices and status.
+  - `collectedDocuments`: Array that stores document fragments, which help reveal the real truth.
+  - `money` : In game currency used for purchasing things from various NPCs
+- **Methods**:
+  - `performAction(actionType)`: 
+    - Takes `actionType` as a parameter to determine if the player is editing history, conducting surveillance, or creating propaganda.
+    - Based on `playerRole`, modifies `loyaltyMeter`, `rebellionMeter`, and/or `suspicionLevel`.
+    - If `actionType` aligns with Party doctrine, increases `loyaltyMeter` and decreases suspicion; rebellious actions raise `rebellionMeter` and suspicion.
+  - `adjustMeter(meter, value)`: 
+    - Adjusts the specified `meter` by a `value`, applying limits (e.g., between 0 and 100).
+    - Calls `GameManager.updateGameState()` if thresholds for any meter are reached, possibly triggering consequences.
+  - `checkSuspicion()`: 
+    - Checks if `suspicionLevel` has reached a threshold where actions would trigger Telescreen or Big Brother interventions.
+    - Returns a boolean indicating whether the threshold was exceeded, signaling `GameManager` to apply consequences.
+  - `collectFragment(fragment)`: 
+    - Adds a document fragment to `collectedDocuments`, increasing `rebellionMeter` slightly to represent gaining truth awareness.
+    - Calls `adjustMeter(rebellionMeter, increment)` to update the meter and notifies `GameManager` of any potential changes to game progression.
+
+---
+
+## **3. MinistryTaskManager**
+- **Purpose**: Manages tasks specific to each of the three roles (Editor, Surveillance Officer, Propaganda Developer). Provides methods for executing tasks and tracking their impact on player metrics and suspicion.
+- **Variables**:
+  - `currentRole`: Stores the player’s role to determine available tasks.
+  - `taskData`: Dictionary storing parameters for each task type, including potential suspicion impact.
+- **Methods**:
+  - `executeTask(actionType)`: 
+    - Receives an `actionType` and, based on `currentRole`, performs a task such as editing documents, spying on NPCs, or creating propaganda.
+    - Calls `GameManager.applyConsequences(actionType)` to update meters based on the task's nature.
+    - Returns an outcome of the task, adjusting suspicion and loyalty/rebellion meters according to Party doctrine.
+  - `calculateSuspicion(actionType)`: 
+    - Takes an `actionType` and calculates the suspicion generated, which varies by task type and frequency.
+    - Updates `suspicionLevel` in `GameManager`, ensuring that repeated rebellious tasks create escalating consequences.
+  - `completeTask(taskOutcome)`: 
+    - Takes `taskOutcome` (e.g., “success” or “failure”) and adjusts meters based on alignment with Party expectations.
+    - Calls `GameManager.updateGameState()` if task completion shifts any key metrics, triggering possible new events or consequences.
+
+---
+
+## **4. BigBrother/Telescreen**
+- **Purpose**: Omnipresent surveillance system, triggering random loyalty checks and monitoring player suspicion. Controls consequences like Room 101 and raiding events based on suspicion.
+- **Variables**:
+  - `suspicionThreshold`: Defines the level at which major events or checks are triggered.
+  - `raidFrequency`: Frequency counter, determining how often raids should occur as suspicion increases.
+- **Methods**:
+  - `triggerAlert()`: 
+    - Randomly checks the player’s `loyaltyMeter` and `suspicionLevel` at intervals to ensure compliance.
+    - If player loyalty is low, prompts an immediate response that influences `loyaltyMeter` or `rebellionMeter` depending on player choices.
+  - `monitorSuspicion(suspicionLevel)`: 
+    - Continuously evaluates `suspicionLevel`; if it exceeds `suspicionThreshold`, escalates events by increasing frequency of checks or initiating raids.
+    - Notifies `GameManager` if an event threshold is crossed, potentially altering game progression.
+  - `executeRaid()`: 
+    - If suspicion is critically high, initiates a raid event, directly impacting the player’s `survivalMeter`.
+    - Checks `collectedDocuments` to find any rebellion-related materials. If found, triggers Room 101 brainwashing, and reduces `rebellionMeter`.
+    - Calls `GameManager.endGame()` if the raid results in a fatal outcome for the player.
+
+---
+
+## **5. NPC**
+- **Purpose**: Represents NPCs, including their actions, relationship dynamics, and potential to spy on the player. NPCs have loyalty levels that affect reporting likelihood and interactions.
+- **Variables**:
+  - `npcType`: Indicates alignment with the Party or rebellion.
+  - `relationshipLevel`: A numeric value determining NPC’s trust in or suspicion of the player, impacting their likelihood of reporting rebellious actions.
+- **Methods**:
+  - `interact()`: 
+    - Initiates an interaction based on `npcType`; if the NPC is loyal to the Party, interaction may increase `suspicionLevel`.
+    - If NPC is rebellion-aligned, may provide a hint or document fragment to support the player’s rebellion.
+    - Modifies `relationshipLevel` based on player responses, increasing or decreasing NPC trust.
+  - `reportPlayer()`: 
+    - Based on `relationshipLevel`, determines the likelihood of reporting suspicious behavior to `TelescreenAI`.
+    - Increases `suspicionLevel` and updates `GameManager` if the report goes through.
+  - `provideHint()`: 
+    - If the NPC is aligned with the rebellion, provides a document fragment or subtle guidance, increasing `rebellionMeter`.
+    - Calls `Player.collectFragment()` and notifies `GameManager` to track the player’s growing awareness and rebellion.
+
+---
+
+## **6. EndingManager**
+- **Purpose**: Manages endgame conditions, determining which ending is triggered based on player metrics and interactions. Handles the display of the final cutscene and outcome.
+- **Variables**:
+  - `endConditions`: Array storing the required values for each potential ending.
+- **Methods**:
+  - `determineEnding()`: 
+    - Compares `loyaltyMeter`, `rebellionMeter`, `survivalMeter`, and `suspicionLevel` against `endConditions`.
+    - Selects an ending type (e.g., Loyalist, Rebellion) based on metric alignment and calls `triggerCutscene()` to finalize the outcome.
+  - `triggerCutscene(endingType)`: 
+    - Loads and displays the cutscene or narration corresponding to `endingType`, summarizing player’s journey and choices.
+    - Marks the game as “ended” in `gameState` and allows for post-game analysis or review options.
+
+---
+
+## **Interactions Summary**
+1. **GameManager** acts as the orchestrator, directly coordinating `Player`, `MinistryTaskManager`, `TelescreenAI`, and `EndingManager`.
+2. **Player** interacts with `MinistryTaskManager` to perform tasks and `TelescreenAI` for suspicion monitoring.
+3. **MinistryTaskManager** provides tasks, calculates suspicion, and informs `GameManager` of outcomes.
+4. **TelescreenAI** monitors suspicion, escalating events and raids through `GameManager`.
+5. **NPC** dynamically affects player suspicion and loyalty based on interactions and alignment.
+6. **EndingManager** finalizes the game, selecting an ending based on player metrics and triggering the appropriate cutscene. 
+
+This structure ensures clear dependencies and data flow, allowing `GameManager` to manage complex interactions effectively.
+
+---
