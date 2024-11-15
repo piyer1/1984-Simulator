@@ -56,7 +56,7 @@
 ## **3. MinistryTaskManager**
 - **Purpose**: Manages tasks specific to each of the three roles (Editor, Surveillance Officer, Propaganda Developer). Provides methods for executing tasks and tracking their impact on player metrics and suspicion.
 - **Variables**:
-  - P1: `currentRole`: Stores the player’s role to determine available tasks.
+  - P2: `currentRole`: Stores the player’s role to determine available tasks.
   - P1: `taskData`: Dictionary storing parameters for each task type, including potential suspicion impact.
 - **Methods**:
   - P0： `executeTask(actionType)`: 
@@ -94,17 +94,17 @@
 ## **5. NPC**
 - **Purpose**: Represents NPCs, including their actions, relationship dynamics, and potential to spy on the player. NPCs have loyalty levels that affect reporting likelihood and interactions.
 - **Variables**:
-  - `npcType`: Indicates alignment with the Party or rebellion.
+  - P1: `npcType`: Indicates alignment with the Party or rebellion.
   - `relationshipLevel`: A numeric value determining NPC’s trust in or suspicion of the player, impacting their likelihood of reporting rebellious actions.
 - **Methods**:
-  - `interact()`: 
+  - P1: `interact()`: 
     - Initiates an interaction based on `npcType`; if the NPC is loyal to the Party, interaction may increase `suspicionLevel`.
     - If NPC is rebellion-aligned, may provide a hint or document fragment to support the player’s rebellion.
     - Modifies `relationshipLevel` based on player responses, increasing or decreasing NPC trust.
-  - `reportPlayer()`: 
+  - P1: `reportPlayer()`: 
     - Based on `relationshipLevel`, determines the likelihood of reporting suspicious behavior to `TelescreenAI`.
     - Increases `suspicionLevel` and updates `GameManager` if the report goes through.
-  - `provideHint()`: 
+  - P1: `provideHint()`: 
     - If the NPC is aligned with the rebellion, provides a document fragment or subtle guidance, increasing `rebellionMeter`.
     - Calls `Player.collectFragment()` and notifies `GameManager` to track the player’s growing awareness and rebellion.
 
@@ -113,12 +113,12 @@
 ## **6. EndingManager**
 - **Purpose**: Manages endgame conditions, determining which ending is triggered based on player metrics and interactions. Handles the display of the final cutscene and outcome.
 - **Variables**:
-  - `endConditions`: Array storing the required values for each potential ending.
+  - P2: `endConditions`: Array storing the required values for each potential ending.
 - **Methods**:
-  - `determineEnding()`: 
+  - P2: `determineEnding()`: 
     - Compares `loyaltyMeter`, `rebellionMeter`, `survivalMeter`, and `suspicionLevel` against `endConditions`.
     - Selects an ending type (e.g., Loyalist, Rebellion) based on metric alignment and calls `triggerCutscene()` to finalize the outcome.
-  - `triggerCutscene(endingType)`: 
+  - P2: `triggerCutscene(endingType)`: 
     - Loads and displays the cutscene or narration corresponding to `endingType`, summarizing player’s journey and choices.
     - Marks the game as “ended” in `gameState` and allows for post-game analysis or review options.
 
@@ -131,6 +131,8 @@
 4. **TelescreenAI** monitors suspicion, escalating events and raids through `GameManager`.
 5. **NPC** dynamically affects player suspicion and loyalty based on interactions and alignment.
 6. **EndingManager** finalizes the game, selecting an ending based on player metrics and triggering the appropriate cutscene. 
+
+**priority summary**: priortize basic gameplay with simple interactions and loyalty tracker. Multi endings, npc, etc are secondary
 
 This structure ensures clear dependencies and data flow, allowing `GameManager` to manage complex interactions effectively.
 
