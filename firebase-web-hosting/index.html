@@ -1,1 +1,217 @@
-<script src="script.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1984 Simulator</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+    
+    <!-- React and ReactDOM -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/17.0.2/umd/react.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/17.0.2/umd/react-dom.development.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+
+    <style>
+        body {
+            background-color: #1a202c;
+            color: #e2e8f0;
+        }
+        
+        .meter {
+            transition: width 0.3s ease-in-out;
+        }
+        
+        .telescreen-alert {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { background-color: rgba(200, 30, 30, 0.8); }
+            50% { background-color: rgba(200, 30, 30, 0.6); }
+            100% { background-color: rgba(200, 30, 30, 0.8); }
+        }
+
+        .gothic-architecture {
+            background-image: linear-gradient(rgba(26, 32, 44, 0.9), rgba(26, 32, 44, 0.9)),
+                            url('/api/placeholder/1920/1080');
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // Game Constants
+        const SUSPICION_THRESHOLD = 75;
+        const METER_MAX = 100;
+        const METER_MIN = 0;
+
+        // Status Meter Component
+        const StatusMeter = ({ label, value, color }) => (
+            <div className="bg-gray-800 p-4 rounded-lg">
+                <div className="text-sm mb-2">{label}</div>
+                <div className="h-2 bg-gray-700 rounded-full">
+                    <div 
+                        className={`h-full meter rounded-full`}
+                        style={{ 
+                            width: `${value}%`,
+                            backgroundColor: color
+                        }}
+                    />
+                </div>
+            </div>
+        );
+
+        // Task Button Component
+        const TaskButton = ({ label, onClick }) => (
+            <button
+                onClick={onClick}
+                className="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg flex flex-col items-center space-y-2"
+            >
+                <span>{label}</span>
+            </button>
+        );
+
+        // Character Creation Component
+        const CharacterCreation = ({ onRoleSelect }) => {
+            const roles = ['Editor', 'Surveillance Officer', 'Propaganda Developer'];
+            
+            const selectRole = () => {
+                const assignedRole = roles[Math.floor(Math.random() * roles.length)];
+                onRoleSelect(assignedRole);
+            };
+
+            return (
+                <div className="flex flex-col items-center space-y-4 p-6">
+                    <h2 className="text-xl font-bold mb-4">Choose Your Role</h2>
+                    <div className="grid grid-cols-1 gap-4 w-full max-w-md">
+                        {roles.map(role => (
+                            <button
+                                key={role}
+                                onClick={selectRole}
+                                className="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg"
+                            >
+                                {role}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        // Main Game Component
+        const Game1984 = () => {
+            const [gameState, setGameState] = React.useState({
+                playerRole: '',
+                loyaltyMeter: 50,
+                rebellionMeter: 0,
+                survivalMeter: 100,
+                suspicionLevel: 0,
+                gameStatus: 'character-creation'
+            });
+
+            const [telescreenAlert, setTelescreenAlert] = React.useState(false);
+
+            React.useEffect(() => {
+                const telescreenInterval = setInterval(() => {
+                    const shouldCheck = Math.random() < 0.2;
+                    if (shouldCheck) {
+                        setTelescreenAlert(true);
+                        setTimeout(() => setTelescreenAlert(false), 5000);
+                    }
+                }, 30000);
+
+                return () => clearInterval(telescreenInterval);
+            }, []);
+
+            const handleRoleSelect = (role) => {
+                setGameState(prev => ({
+                    ...prev,
+                    playerRole: role,
+                    gameStatus: 'active'
+                }));
+            };
+
+            const handleTask = (taskType) => {
+                const loyaltyChange = Math.random() > 0.5 ? 5 : -5;
+                const suspicionChange = Math.random() * 10;
+
+                setGameState(prev => ({
+                    ...prev,
+                    loyaltyMeter: Math.max(METER_MIN, Math.min(METER_MAX, prev.loyaltyMeter + loyaltyChange)),
+                    suspicionLevel: Math.max(METER_MIN, Math.min(METER_MAX, prev.suspicionLevel + suspicionChange))
+                }));
+
+                if (gameState.suspicionLevel >= SUSPICION_THRESHOLD) {
+                    setGameState(prev => ({
+                        ...prev,
+                        gameStatus: 'raid',
+                        survivalMeter: Math.max(METER_MIN, prev.survivalMeter - 30)
+                    }));
+                }
+            };
+
+            return (
+                <div className="min-h-screen gothic-architecture">
+                    {gameState.gameStatus === 'character-creation' && (
+                        <CharacterCreation onRoleSelect={handleRoleSelect} />
+                    )}
+                    
+                    {gameState.gameStatus === 'active' && (
+                        <div className="flex flex-col h-full">
+                            <div className="grid grid-cols-4 gap-4 p-4">
+                                <StatusMeter label="Loyalty" value={gameState.loyaltyMeter} color="#3b82f6" />
+                                <StatusMeter label="Rebellion" value={gameState.rebellionMeter} color="#ef4444" />
+                                <StatusMeter label="Survival" value={gameState.survivalMeter} color="#10b981" />
+                                <StatusMeter label="Suspicion" value={gameState.suspicionLevel} color="#eab308" />
+                            </div>
+
+                            {telescreenAlert && (
+                                <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                                            telescreen-alert p-6 rounded-lg shadow-lg">
+                                    <span className="text-xl">BIG BROTHER IS WATCHING</span>
+                                </div>
+                            )}
+
+                            <div className="flex-1 p-4">
+                                <div className="grid grid-cols-3 gap-4">
+                                    <TaskButton 
+                                        label="Edit History" 
+                                        onClick={() => handleTask('edit')} 
+                                    />
+                                    <TaskButton 
+                                        label="Conduct Surveillance" 
+                                        onClick={() => handleTask('surveillance')} 
+                                    />
+                                    <TaskButton 
+                                        label="Create Propaganda" 
+                                        onClick={() => handleTask('propaganda')} 
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {gameState.gameStatus === 'raid' && (
+                        <div className="fixed inset-0 bg-red-900/80 flex items-center justify-center">
+                            <div className="p-6 bg-gray-800 rounded-lg">
+                                <h2 className="text-2xl mb-4">RAID IN PROGRESS</h2>
+                                <p>The Thought Police have been notified of your suspicious activities...</p>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // Render the app
+        ReactDOM.render(<Game1984 />, document.getElementById('root'));
+    </script>
+</body>
+</html>
