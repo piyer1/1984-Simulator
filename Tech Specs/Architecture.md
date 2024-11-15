@@ -33,7 +33,7 @@
 ## **2. Player**
 - **Purpose**: Represents the player’s attributes and decision-making; stores player metrics and allows interaction with tasks and NPCs. Manages the impact of player choices on game metrics.
 - **Variables**:
-  - `loyaltyMeter`, P1: `rebellionMeter`, P2: `survivalMeter`: Numeric values reflecting player’s choices and status.
+  - `loyaltyMeter`,`rebellionMeter`, `survivalMeter`: Numeric values reflecting player’s choices and status.
   - `collectedDocuments`: Array that stores document fragments, which help reveal the real truth.
   - `money` : In game currency used for purchasing things from various NPCs
 - **Methods**:
