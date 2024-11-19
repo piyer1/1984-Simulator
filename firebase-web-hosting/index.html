@@ -2,216 +2,337 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>1984 Simulator</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
-    
-    <!-- React and ReactDOM -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/17.0.2/umd/react.development.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/17.0.2/umd/react-dom.development.js"></script>
-    
-    <!-- Babel for JSX -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
-
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            background-color: #1a202c;
-            color: #e2e8f0;
+            background-color: #1c1c1c;
+            color: #e0e0e0;
+            font-family: monospace;
         }
-        
-        .meter {
-            transition: width 0.3s ease-in-out;
+        .game-screen {
+            background-color: #2c2c2c;
+            border: 2px solid #4a4a4a;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
-        
-        .telescreen-alert {
-            animation: pulse 2s infinite;
+        .telescreen-effect {
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0,0,0,0.1) 0px,
+                rgba(0,0,0,0.2) 2px,
+                transparent 2px,
+                transparent 4px
+            );
         }
-        
-        @keyframes pulse {
-            0% { background-color: rgba(200, 30, 30, 0.8); }
-            50% { background-color: rgba(200, 30, 30, 0.6); }
-            100% { background-color: rgba(200, 30, 30, 0.8); }
+        .dialog-box {
+            background-color: rgba(20,20,20,0.9);
+            border: 1px solid #3a3a3a;
         }
-
-        .gothic-architecture {
-            background-image: linear-gradient(rgba(26, 32, 44, 0.9), rgba(26, 32, 44, 0.9)),
-                            url('/api/placeholder/1920/1080');
-            background-size: cover;
-            background-position: center;
+        .map-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+        .map-tile {
+            background-color: #3c3c3c;
+            border: 1px solid #4a4a4a;
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .player-tile {
+            background-color: #5a5a5a;
         }
     </style>
 </head>
-<body>
-    <div id="root"></div>
-
-    <script type="text/babel">
-        // Game Constants
-        const SUSPICION_THRESHOLD = 75;
-        const METER_MAX = 100;
-        const METER_MIN = 0;
-
-        // Status Meter Component
-        const StatusMeter = ({ label, value, color }) => (
-            <div className="bg-gray-800 p-4 rounded-lg">
-                <div className="text-sm mb-2">{label}</div>
-                <div className="h-2 bg-gray-700 rounded-full">
-                    <div 
-                        className={`h-full meter rounded-full`}
-                        style={{ 
-                            width: `${value}%`,
-                            backgroundColor: color
-                        }}
-                    />
+<body class="bg-gray-900 text-gray-200 min-h-screen flex items-center justify-center">
+    <div class="game-screen w-4/5 h-[700px] p-4 rounded-lg telescreen-effect flex flex-col">
+        <div class="game-header text-center mb-4">
+            <h1 class="text-2xl font-bold uppercase tracking-widest">Ministry of Truth Simulator</h1>
+            <div id="role-display" class="text-sm text-gray-500">Role: Loading...</div>
+        </div>
+        
+        <div class="game-content flex flex-grow">
+            <div class="map-container w-2/3 p-2">
+                <div id="game-map" class="map-grid h-full">
+                    <!-- Map tiles will be generated here -->
                 </div>
             </div>
-        );
-
-        // Task Button Component
-        const TaskButton = ({ label, onClick }) => (
-            <button
-                onClick={onClick}
-                className="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg flex flex-col items-center space-y-2"
-            >
-                <span>{label}</span>
-            </button>
-        );
-
-        // Character Creation Component
-        const CharacterCreation = ({ onRoleSelect }) => {
-            const roles = ['Editor', 'Surveillance Officer', 'Propaganda Developer'];
             
-            const selectRole = () => {
-                const assignedRole = roles[Math.floor(Math.random() * roles.length)];
-                onRoleSelect(assignedRole);
-            };
-
-            return (
-                <div className="flex flex-col items-center space-y-4 p-6">
-                    <h2 className="text-xl font-bold mb-4">Choose Your Role</h2>
-                    <div className="grid grid-cols-1 gap-4 w-full max-w-md">
-                        {roles.map(role => (
-                            <button
-                                key={role}
-                                onClick={selectRole}
-                                className="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg"
-                            >
-                                {role}
-                            </button>
-                        ))}
+            <div class="dialog-container w-1/3 p-2">
+                <div id="dialog-box" class="dialog-box h-full p-4 rounded">
+                    <div id="dialog-text" class="mb-4">Welcome to the Ministry. Await further instructions.</div>
+                    <div id="dialog-options" class="space-y-2">
+                        <!-- Dialog options will be dynamically inserted -->
                     </div>
                 </div>
-            );
-        };
+            </div>
+        </div>
+        
+        <div class="status-bar flex justify-between text-xs text-gray-500 mt-2">
+            <div id="meters">
+                Loyalty: <span id="loyalty-meter">50</span> | 
+                Rebellion: <span id="rebellion-meter">0</span> | 
+                Survival: <span id="survival-meter">100</span>
+            </div>
+            <div>Big Brother is Watching</div>
+        </div>
+    </div>
 
-        // Main Game Component
-        const Game1984 = () => {
-            const [gameState, setGameState] = React.useState({
-                playerRole: '',
-                loyaltyMeter: 50,
-                rebellionMeter: 0,
-                survivalMeter: 100,
-                suspicionLevel: 0,
-                gameStatus: 'character-creation'
-            });
-
-            const [telescreenAlert, setTelescreenAlert] = React.useState(false);
-
-            React.useEffect(() => {
-                const telescreenInterval = setInterval(() => {
-                    const shouldCheck = Math.random() < 0.2;
-                    if (shouldCheck) {
-                        setTelescreenAlert(true);
-                        setTimeout(() => setTelescreenAlert(false), 5000);
-                    }
-                }, 30000);
-
-                return () => clearInterval(telescreenInterval);
-            }, []);
-
-            const handleRoleSelect = (role) => {
-                setGameState(prev => ({
-                    ...prev,
-                    playerRole: role,
-                    gameStatus: 'active'
-                }));
+    <script>
+    class GameManager {
+        constructor() {
+            this.playerRole = null;
+            this.gameState = 'inactive';
+            this.suspicionLevel = 0;
+            this.meterValues = {
+                loyalty: 50,
+                rebellion: 0,
+                survival: 100
             };
+        }
 
-            const handleTask = (taskType) => {
-                const loyaltyChange = Math.random() > 0.5 ? 5 : -5;
-                const suspicionChange = Math.random() * 10;
+        initializeGame() {
+            this.assignRole();
+            this.gameState = 'active';
+            console.log(`Game started. Role: ${this.playerRole}`);
+        }
 
-                setGameState(prev => ({
-                    ...prev,
-                    loyaltyMeter: Math.max(METER_MIN, Math.min(METER_MAX, prev.loyaltyMeter + loyaltyChange)),
-                    suspicionLevel: Math.max(METER_MIN, Math.min(METER_MAX, prev.suspicionLevel + suspicionChange))
-                }));
+        assignRole() {
+            const roles = ['Editor', 'Surveillance Officer', 'Propaganda Developer'];
+            this.playerRole = roles[Math.floor(Math.random() * roles.length)];
+        }
 
-                if (gameState.suspicionLevel >= SUSPICION_THRESHOLD) {
-                    setGameState(prev => ({
-                        ...prev,
-                        gameStatus: 'raid',
-                        survivalMeter: Math.max(METER_MIN, prev.survivalMeter - 30)
-                    }));
-                }
-            };
+        updateGameState() {
+            // Check game progression conditions
+            if (this.suspicionLevel > 75) {
+                this.endGame('captured');
+            }
+        }
 
-            return (
-                <div className="min-h-screen gothic-architecture">
-                    {gameState.gameStatus === 'character-creation' && (
-                        <CharacterCreation onRoleSelect={handleRoleSelect} />
-                    )}
+        applyConsequences(action) {
+            // Modify meters based on player actions
+            switch(action) {
+                case 'loyal_action':
+                    this.meterValues.loyalty = Math.min(100, this.meterValues.loyalty + 10);
+                    this.suspicionLevel = Math.max(0, this.suspicionLevel - 5);
+                    break;
+                case 'rebellious_action':
+                    this.meterValues.rebellion = Math.min(100, this.meterValues.rebellion + 10);
+                    this.suspicionLevel = Math.min(100, this.suspicionLevel + 10);
+                    break;
+            }
+            this.updateGameState();
+        }
+
+        endGame(type) {
+            this.gameState = 'ended';
+            console.log(`Game ended: ${type}`);
+            // Trigger appropriate ending scene
+            alert(`Game Over: ${type}`);
+        }
+    }
+
+    class Player {
+        constructor(gameManager) {
+            this.gameManager = gameManager;
+            this.collectedDocuments = [];
+        }
+
+        performAction(actionType) {
+            // Interact with game systems based on action
+            this.gameManager.applyConsequences(actionType);
+        }
+
+        collectFragment(fragment) {
+            this.collectedDocuments.push(fragment);
+            this.gameManager.applyConsequences('rebellious_action');
+        }
+    }
+
+    class DialogSystem {
+        constructor(gameManager) {
+            this.gameManager = gameManager;
+            this.dialogBox = document.getElementById('dialog-text');
+            this.optionsBox = document.getElementById('dialog-options');
+        }
+
+        displayDialog(text, options = []) {
+            this.dialogBox.textContent = text;
+            this.optionsBox.innerHTML = '';
+            
+            // Show the dialog box
+            this.dialogBox.style.display = 'block';
+            this.optionsBox.style.display = 'block';
+            
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option.text;
+                button.className = 'w-full p-2 bg-gray-700 hover:bg-gray-600 rounded';
+                button.onclick = () => {
+                    // Handle the option
+                    this.handleOption(option);
                     
-                    {gameState.gameStatus === 'active' && (
-                        <div className="flex flex-col h-full">
-                            <div className="grid grid-cols-4 gap-4 p-4">
-                                <StatusMeter label="Loyalty" value={gameState.loyaltyMeter} color="#3b82f6" />
-                                <StatusMeter label="Rebellion" value={gameState.rebellionMeter} color="#ef4444" />
-                                <StatusMeter label="Survival" value={gameState.survivalMeter} color="#10b981" />
-                                <StatusMeter label="Suspicion" value={gameState.suspicionLevel} color="#eab308" />
-                            </div>
+                    // Hide the dialog box
+                    this.dialogBox.style.display = 'none';
+                    this.optionsBox.style.display = 'none';
+                };
+                this.optionsBox.appendChild(button);
+            });
+        }
+        
+        handleOption(option) {
+            // Process dialog option and its consequences
+            this.gameManager.applyConsequences(option.action);
+            
+            // Update UI
+            this.updateMeters();
+            
+            // Potentially trigger next dialog or event
+            if (option.nextDialog) {
+                this.displayDialog(option.nextDialog.text, option.nextDialog.options);
+            }
+        }
 
-                            {telescreenAlert && (
-                                <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
-                                            telescreen-alert p-6 rounded-lg shadow-lg">
-                                    <span className="text-xl">BIG BROTHER IS WATCHING</span>
-                                </div>
-                            )}
+        updateMeters() {
+            const meters = this.gameManager.meterValues;
+            document.getElementById('loyalty-meter').textContent = meters.loyalty;
+            document.getElementById('rebellion-meter').textContent = meters.rebellion;
+            document.getElementById('survival-meter').textContent = meters.survival;
+        }
+    }
 
-                            <div className="flex-1 p-4">
-                                <div className="grid grid-cols-3 gap-4">
-                                    <TaskButton 
-                                        label="Edit History" 
-                                        onClick={() => handleTask('edit')} 
-                                    />
-                                    <TaskButton 
-                                        label="Conduct Surveillance" 
-                                        onClick={() => handleTask('surveillance')} 
-                                    />
-                                    <TaskButton 
-                                        label="Create Propaganda" 
-                                        onClick={() => handleTask('propaganda')} 
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    )}
+    class MapSystem {
+        constructor(gameManager) {
+            this.gameManager = gameManager;
+            this.mapElement = document.getElementById('game-map');
+            this.playerPosition = { x: 2, y: 2 };
+            this.initializeMap();
+            this.setupKeyboardControls();
+        }
 
-                    {gameState.gameStatus === 'raid' && (
-                        <div className="fixed inset-0 bg-red-900/80 flex items-center justify-center">
-                            <div className="p-6 bg-gray-800 rounded-lg">
-                                <h2 className="text-2xl mb-4">RAID IN PROGRESS</h2>
-                                <p>The Thought Police have been notified of your suspicious activities...</p>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            );
-        };
+        initializeMap() {
+            for (let y = 0; y < 5; y++) {
+                for (let x = 0; x < 5; x++) {
+                    const tile = document.createElement('div');
+                    tile.classList.add('map-tile');
+                    tile.dataset.x = x;
+                    tile.dataset.y = y;
+                    
+                    if (x === this.playerPosition.x && y === this.playerPosition.y) {
+                        tile.classList.add('player-tile');
+                        tile.textContent = '🕴️';
+                    }
+                    
+                    this.mapElement.appendChild(tile);
+                }
+            }
+        }
 
-        // Render the app
-        ReactDOM.render(<Game1984 />, document.getElementById('root'));
+        setupKeyboardControls() {
+            document.addEventListener('keydown', (event) => {
+                const moves = {
+                    'ArrowUp': { x: 0, y: -1 },
+                    'ArrowDown': { x: 0, y: 1 },
+                    'ArrowLeft': { x: -1, y: 0 },
+                    'ArrowRight': { x: 1, y: 0 }
+                };
+
+                const move = moves[event.key];
+                if (move) {
+                    this.movePlayer(move.x, move.y);
+                }
+            });
+        }
+
+        movePlayer(dx, dy) {
+            const newX = this.playerPosition.x + dx;
+            const newY = this.playerPosition.y + dy;
+
+            // Boundary check
+            if (newX >= 0 && newX < 5 && newY >= 0 && newY < 5) {
+                // Remove old player tile
+                const oldTile = this.mapElement.querySelector('.player-tile');
+                oldTile.classList.remove('player-tile');
+                oldTile.textContent = '';
+
+                // Set new player position
+                this.playerPosition = { x: newX, y: newY };
+
+                // Mark new tile
+                const newTile = this.mapElement.querySelector(`[data-x="${newX}"][data-y="${newY}"]`);
+                newTile.classList.add('player-tile');
+                newTile.textContent = '🕴️';
+
+                // Potentially trigger an event based on new location
+                this.checkLocationEvent();
+            }
+        }
+
+        checkLocationEvent() {
+            // Placeholder for location-based events
+            const eventProbability = Math.random();
+            if (eventProbability < 0.2) {  // 20% chance of an event
+                this.triggerRandomEvent();
+            }
+        }
+
+        triggerRandomEvent() {
+            const events = [
+                {
+                    text: "You notice a suspicious document on a nearby desk. Do you investigate?",
+                    options: [
+                        { 
+                            text: "Investigate the document", 
+                            action: 'rebellious_action',
+                            nextDialog: {
+                                text: "You find a fragment revealing the Party's manipulation.",
+                                options: [
+                                    { text: "Keep the fragment", action: 'rebellious_action' },
+                                    { text: "Report it", action: 'loyal_action' }
+                                ]
+                            }
+                        },
+                        { 
+                            text: "Ignore it", 
+                            action: 'loyal_action' 
+                        }
+                    ]
+                }
+            ];
+
+            const selectedEvent = events[0];
+            dialogSystem.displayDialog(selectedEvent.text, selectedEvent.options);
+        }
+    }
+
+    // Global variables to allow interaction in console
+    let gameManager, dialogSystem, mapSystem, player;
+
+    // Initialization
+    document.addEventListener('DOMContentLoaded', () => {
+        gameManager = new GameManager();
+        gameManager.initializeGame();
+
+        // Update role display
+        document.getElementById('role-display').textContent = `Role: ${gameManager.playerRole}`;
+
+        player = new Player(gameManager);
+        dialogSystem = new DialogSystem(gameManager);
+        mapSystem = new MapSystem(gameManager);
+
+        // Initial welcome dialog
+        dialogSystem.displayDialog(
+            `Welcome to the Ministry of Truth. You have been assigned the role of ${gameManager.playerRole}. Remain vigilant.`,
+            [
+                { 
+                    text: "Understand", 
+                    action: 'loyal_action' 
+                }
+            ]
+        );
+    });
     </script>
 </body>
 </html>
