@@ -86,6 +86,7 @@
             this.playerRole = null;
             this.gameState = 'inactive';
             this.suspicionLevel = 0;
+            this.rebellionLevel = 0;
             this.meterValues = {
                 loyalty: 50,
                 rebellion: 0,
@@ -106,8 +107,11 @@
 
         updateGameState() {
             // Check game progression conditions
-            if (this.suspicionLevel > 75) {
+            if (this.suspicionLevel > 75 && this.suspicionLevel > this.rebellionLevel) {
                 this.endGame('captured');
+            }
+            if (this.suspicionLevel > 75 && this.suspicionLevel <= this.rebellionLevel) {
+                this.endGame('escaped');
             }
         }
 
