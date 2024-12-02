@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Ministry of Truth: Room Explorer</title>
     <style>
+        /* Your original CSS */
         body {
             background-color: black;
             display: flex;
@@ -78,6 +79,31 @@
             background-color: red;
             z-index: 10;
         }
+        #dialog {
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 2px solid white;
+            color: white;
+            padding: 20px;
+            width: 600px;
+            display: none;
+            z-index: 50;
+            text-align: center;
+        }
+        #dialog button {
+            margin: 5px;
+            padding: 10px 20px;
+            background-color: gray;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+        #dialog button:hover {
+            background-color: darkgray;
+        }
     </style>
 </head>
 <body>
@@ -95,166 +121,160 @@
             <div class="room-label">Prole District</div>
         </div>
         <div id="player"></div>
+        <div id="dialog">
+            <p id="dialogText"></p>
+            <div id="dialogChoices"></div>
+        </div>
     </div>
 
     <script>
         const player = document.getElementById('player');
         const container = document.getElementById('gameContainer');
-        const rooms = {
-            victoryMansions: document.getElementById('victoryMansions'),
-            ministryOfTruth: document.getElementById('ministryOfTruth'),
-            room101: document.getElementById('room101'),
-            proleDistrict: document.getElementById('proleDistrict')
-        };
+        const dialog = document.getElementById('dialog');
+        const dialogText = document.getElementById('dialogText');
+        const dialogChoices = document.getElementById('dialogChoices');
 
-         // Collision detection function
-         function checkCollision(x, y) {
-            const playerRect = {
-                left: x,
-                right: x + 20,
-                top: y,
-                bottom: y + 20
-            };
-
-            // Check furniture collisions
-            const furnitureElements = document.querySelectorAll('.furniture');
-            for (let furniture of furnitureElements) {
-                const furnitureRect = furniture.getBoundingClientRect();
-                if (
-                    playerRect.left < furnitureRect.right &&
-                    playerRect.right > furnitureRect.left &&
-                    playerRect.top < furnitureRect.bottom &&
-                    playerRect.bottom > furnitureRect.top
-                ) {
-                    return true;
-                }
-            }
-         }
-
-        // Initial player position in Victory Mansions
         let playerX = 50;
         let playerY = 50;
+        let alignment = 0; // Tracks rebellion (-) vs. compliance (+)
 
-        // Create furniture for Victory Mansions
+        // Helper function to show dialog
+        function showDialog(text, choices) {
+            dialogText.textContent = text;
+            dialogChoices.innerHTML = '';
+            choices.forEach(choice => {
+                const button = document.createElement('button');
+                button.textContent = choice.text;
+                button.addEventListener('click', () => {
+                    choice.action();
+                    dialog.style.display = 'none';
+                });
+                dialogChoices.appendChild(button);
+            });
+            dialog.style.display = 'block';
+        }
+
+        // Interaction functions for objects
+        function interactWithTelescreen() {
+            showDialog(
+                'The telescreen blares Party propaganda. Do you listen or turn it off?',
+                [
+                    { 
+                        text: 'Listen', 
+                        action: () => { 
+                            alignment += 1; 
+                            alert('You feel more loyal to the Party.');
+                        } 
+                    },
+                    { 
+                        text: 'Turn it off', 
+                        action: () => { 
+                            alignment -= 1; 
+                            alert('A dangerous act of rebellion!');
+                        } 
+                    }
+                ]
+            );
+        }
+
+        function interactWithDiary() {
+            showDialog(
+                'You find Winston’s secret diary. Do you write down rebellious thoughts or hide it?',
+                [
+                    { 
+                        text: 'Write in it', 
+                        action: () => { 
+                            alignment -= 2; 
+                            alert('The act of rebellion inspires you.');
+                        } 
+                    },
+                    { 
+                        text: 'Hide it', 
+                        action: () => { 
+                            alignment += 1; 
+                            alert('Safer to comply for now.');
+                        } 
+                    }
+                ]
+            );
+        }
+
+        function interactWithProles() {
+            showDialog(
+                'A Prole offers you information about the rebellion. Do you listen or report them?',
+                [
+                    { 
+                        text: 'Listen', 
+                        action: () => { 
+                            alignment -= 1; 
+                            alert('You learn about the resistance.');
+                        } 
+                    },
+                    { 
+                        text: 'Report them', 
+                        action: () => { 
+                            alignment += 2; 
+                            alert('The Party rewards your loyalty.');
+                        } 
+                    }
+                ]
+            );
+        }
+
+        // Ending functions
+        function checkEnding() {
+            if (alignment <= -3) {
+                alert('You escape to join the rebellion! Victory!');
+            } else if (alignment >= 3) {
+                alert('You are caught and sent to Room 101. Game Over.');
+            }
+        }
+
+        // Furniture creation
         function createFurniture() {
-            const desk = document.createElement('div');
-            desk.classList.add('furniture');
-            desk.style.width = '100px';
-            desk.style.height = '50px';
-            desk.style.left = '50px';
-            desk.style.top = '150px';
-            
-            const deskLabel = document.createElement('div');
-            deskLabel.classList.add('furniture-label', 'furniture-label-bottom');
-            deskLabel.textContent = 'Desk';
-            desk.appendChild(deskLabel);
-            
-            victoryMansions.appendChild(desk);
-
-            const bed = document.createElement('div');
-            bed.classList.add('furniture');
-            bed.style.width = '120px';
-            bed.style.height = '80px';
-            bed.style.right = '50px';
-            bed.style.top = '150px';
-            
-            const bedLabel = document.createElement('div');
-            bedLabel.classList.add('furniture-label', 'furniture-label-bottom');
-            bedLabel.textContent = 'Bed';
-            bed.appendChild(bedLabel);
-            
-            victoryMansions.appendChild(bed);
-
             const telescreen = document.createElement('div');
             telescreen.classList.add('furniture');
             telescreen.style.width = '200px';
             telescreen.style.height = '20px';
             telescreen.style.top = '50px';
             telescreen.style.left = '100px';
-            
-            const telescreenLabel = document.createElement('div');
-            telescreenLabel.classList.add('furniture-label', 'furniture-label-bottom');
-            telescreenLabel.textContent = 'Telescreen';
-            telescreen.appendChild(telescreenLabel);
-            
-            victoryMansions.appendChild(telescreen);
-        }
+            telescreen.addEventListener('click', interactWithTelescreen);
+            document.getElementById('victoryMansions').appendChild(telescreen);
 
-        // Create desk for Ministry of Truth
-        function createMinistryOfTruthFurniture() {
-            const desk = document.createElement('div');
-            desk.classList.add('furniture');
-            desk.style.width = '150px';
-            desk.style.height = '70px';
-            desk.style.top = '100px';
-            desk.style.left = '100px';
-            
-            const deskLabel = document.createElement('div');
-            deskLabel.classList.add('furniture-label');
-            deskLabel.textContent = 'Ministry Desk';
-            desk.appendChild(deskLabel);
-            
-            rooms.ministryOfTruth.appendChild(desk);
-        }
+            const diary = document.createElement('div');
+            diary.classList.add('furniture');
+            diary.style.width = '120px';
+            diary.style.height = '50px';
+            diary.style.top = '150px';
+            diary.style.left = '50px';
+            diary.addEventListener('click', interactWithDiary);
+            document.getElementById('victoryMansions').appendChild(diary);
 
-        // Create random objects in Prole District
-        function createProleDistrictObjects() {
-            const proleRect = proleDistrict.getBoundingClientRect();
-            
-            for (let i = 0; i < 4; i++) {
-                const object = document.createElement('div');
-                object.classList.add('random-object');
-                object.style.width = '20px';
-                object.style.height = '20px';
-                
-                // Constrain random position within Prole District
-                object.style.left = `${Math.random() * (proleRect.width - 40)}px`;
-                object.style.top = `${Math.random() * (proleRect.height - 40)}px`;
-                
-                proleDistrict.appendChild(object);
-            }
-        }
-
-        function updatePlayerPosition() {
-            player.style.left = `${playerX}px`;
-            player.style.top = `${playerY}px`;
-        }
-
-        function constrainPlayerPosition() {
-            const containerRect = container.getBoundingClientRect();
-            const playerRect = player.getBoundingClientRect();
-
-            playerX = Math.max(0, Math.min(playerX, containerRect.width - playerRect.width));
-            playerY = Math.max(0, Math.min(playerY, containerRect.height - playerRect.height));
+            const prole = document.createElement('div');
+            prole.classList.add('random-object');
+            prole.style.width = '50px';
+            prole.style.height = '50px';
+            prole.style.top = '200px';
+            prole.style.left = '150px';
+            prole.addEventListener('click', interactWithProles);
+            document.getElementById('proleDistrict').appendChild(prole);
         }
 
         document.addEventListener('keydown', (event) => {
             const speed = 20;
-
-            let newY = playerY;
-            let newX = playerX;
-
-            switch(event.key) {
-                case 'ArrowUp': newY -= speed; break;
-                case 'ArrowDown': newY += speed; break;
-                case 'ArrowLeft': newX -= speed; break;
-                case 'ArrowRight': newX += speed; break;
+            switch (event.key) {
+                case 'ArrowUp': playerY -= speed; break;
+                case 'ArrowDown': playerY += speed; break;
+                case 'ArrowLeft': playerX -= speed; break;
+                case 'ArrowRight': playerX += speed; break;
             }
-
-            if (!checkCollision(newX, newY)) {
-                playerX = newX;
-                playerY = newY;
-            }
-
-            constrainPlayerPosition();
-            updatePlayerPosition();
+            player.style.left = `${playerX}px`;
+            player.style.top = `${playerY}px`;
+            checkEnding();
         });
 
-        // Initialize game elements
+        // Initialize game
         createFurniture();
-        createMinistryOfTruthFurniture();
-        createProleDistrictObjects();
-        updatePlayerPosition();
     </script>
 </body>
 </html>
