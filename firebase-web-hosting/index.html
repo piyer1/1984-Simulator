@@ -53,6 +53,27 @@
             position: absolute;
             background-color: gray;
             z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: black;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        .furniture-label {
+            position: absolute;
+            color: white;
+            font-size: 10px;
+        }
+        .ministry-desk-label {
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .furniture-label-bottom {
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
         }
         .random-object {
             position: absolute;
@@ -97,6 +118,12 @@
             desk.style.height = '50px';
             desk.style.left = '50px';
             desk.style.top = '150px';
+            
+            const deskLabel = document.createElement('div');
+            deskLabel.classList.add('furniture-label', 'furniture-label-bottom');
+            deskLabel.textContent = 'Desk';
+            desk.appendChild(deskLabel);
+            
             victoryMansions.appendChild(desk);
 
             const bed = document.createElement('div');
@@ -105,6 +132,12 @@
             bed.style.height = '80px';
             bed.style.right = '50px';
             bed.style.top = '150px';
+            
+            const bedLabel = document.createElement('div');
+            bedLabel.classList.add('furniture-label', 'furniture-label-bottom');
+            bedLabel.textContent = 'Bed';
+            bed.appendChild(bedLabel);
+            
             victoryMansions.appendChild(bed);
 
             const telescreen = document.createElement('div');
@@ -113,6 +146,12 @@
             telescreen.style.height = '20px';
             telescreen.style.top = '50px';
             telescreen.style.left = '100px';
+            
+            const telescreenLabel = document.createElement('div');
+            telescreenLabel.classList.add('furniture-label', 'furniture-label-bottom');
+            telescreenLabel.textContent = 'Telescreen';
+            telescreen.appendChild(telescreenLabel);
+            
             victoryMansions.appendChild(telescreen);
         }
 
@@ -124,20 +163,28 @@
             desk.style.height = '70px';
             desk.style.top = '100px';
             desk.style.left = '100px';
+            
+            const deskLabel = document.createElement('div');
+            deskLabel.classList.add('furniture-label', 'ministry-desk-label');
+            deskLabel.textContent = 'Ministry Desk';
+            desk.appendChild(deskLabel);
+            
             ministryOfTruth.appendChild(desk);
         }
 
         // Create random objects in Prole District
         function createProleDistrictObjects() {
+            const proleRect = proleDistrict.getBoundingClientRect();
+            
             for (let i = 0; i < 4; i++) {
                 const object = document.createElement('div');
                 object.classList.add('random-object');
                 object.style.width = '20px';
                 object.style.height = '20px';
                 
-                // Random position within Prole District
-                object.style.left = `${Math.random() * 350}px`;
-                object.style.top = `${Math.random() * 250}px`;
+                // Constrain random position within Prole District
+                object.style.left = `${Math.random() * (proleRect.width - 40)}px`;
+                object.style.top = `${Math.random() * (proleRect.height - 40)}px`;
                 
                 proleDistrict.appendChild(object);
             }
