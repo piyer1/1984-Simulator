@@ -19,44 +19,129 @@
             height: 600px;
             position: relative;
             border: 2px solid white;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 10px;
+            padding: 10px;
+            box-sizing: border-box;
         }
         .room {
-            position: absolute;
-            width: 380px;
-            height: 280px;
+            position: relative;
             border: 4px solid white;
             display: flex;
             justify-content: center;
-            align-items: center;
-            font-size: 18px;
+            align-items: flex-start;
+            padding-top: 20px;
         }
-        #victoryMansions { top: 10px; left: 10px; }
-        #ministryOfTruth { top: 10px; right: 10px; }
-        #room101 { bottom: 10px; left: 10px; }
-        #proleDistrict { bottom: 10px; right: 10px; }
+        .room-label {
+            position: absolute;
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
         #player {
             position: absolute;
             width: 20px;
             height: 20px;
             background-color: white;
             transition: all 0.1s;
+            z-index: 20;
+        }
+        .furniture {
+            position: absolute;
+            background-color: gray;
+            z-index: 10;
+        }
+        .random-object {
+            position: absolute;
+            background-color: red;
+            z-index: 10;
         }
     </style>
 </head>
 <body>
     <div id="gameContainer">
-        <div id="victoryMansions" class="room">Victory Mansions</div>
-        <div id="ministryOfTruth" class="room">Ministry of Truth</div>
-        <div id="room101" class="room">Room 101</div>
-        <div id="proleDistrict" class="room">Prole District</div>
+        <div id="victoryMansions" class="room">
+            <div class="room-label">Victory Mansions</div>
+        </div>
+        <div id="ministryOfTruth" class="room">
+            <div class="room-label">Ministry of Truth</div>
+        </div>
+        <div id="room101" class="room">
+            <div class="room-label">Room 101</div>
+        </div>
+        <div id="proleDistrict" class="room">
+            <div class="room-label">Prole District</div>
+        </div>
         <div id="player"></div>
     </div>
 
     <script>
         const player = document.getElementById('player');
         const container = document.getElementById('gameContainer');
-        let playerX = 390;
-        let playerY = 290;
+        const victoryMansions = document.getElementById('victoryMansions');
+        const proleDistrict = document.getElementById('proleDistrict');
+        const ministryOfTruth = document.getElementById('ministryOfTruth');
+
+        // Initial player position in Victory Mansions
+        let playerX = 50;
+        let playerY = 50;
+
+        // Create furniture for Victory Mansions
+        function createFurniture() {
+            const desk = document.createElement('div');
+            desk.classList.add('furniture');
+            desk.style.width = '100px';
+            desk.style.height = '50px';
+            desk.style.left = '50px';
+            desk.style.top = '150px';
+            victoryMansions.appendChild(desk);
+
+            const bed = document.createElement('div');
+            bed.classList.add('furniture');
+            bed.style.width = '120px';
+            bed.style.height = '80px';
+            bed.style.right = '50px';
+            bed.style.top = '150px';
+            victoryMansions.appendChild(bed);
+
+            const telescreen = document.createElement('div');
+            telescreen.classList.add('furniture');
+            telescreen.style.width = '200px';
+            telescreen.style.height = '20px';
+            telescreen.style.top = '50px';
+            telescreen.style.left = '100px';
+            victoryMansions.appendChild(telescreen);
+        }
+
+        // Create desk for Ministry of Truth
+        function createMinistryOfTruthFurniture() {
+            const desk = document.createElement('div');
+            desk.classList.add('furniture');
+            desk.style.width = '150px';
+            desk.style.height = '70px';
+            desk.style.top = '100px';
+            desk.style.left = '100px';
+            ministryOfTruth.appendChild(desk);
+        }
+
+        // Create random objects in Prole District
+        function createProleDistrictObjects() {
+            for (let i = 0; i < 4; i++) {
+                const object = document.createElement('div');
+                object.classList.add('random-object');
+                object.style.width = '20px';
+                object.style.height = '20px';
+                
+                // Random position within Prole District
+                object.style.left = `${Math.random() * 350}px`;
+                object.style.top = `${Math.random() * 250}px`;
+                
+                proleDistrict.appendChild(object);
+            }
+        }
 
         function updatePlayerPosition() {
             player.style.left = `${playerX}px`;
@@ -85,6 +170,10 @@
             updatePlayerPosition();
         });
 
+        // Initialize game elements
+        createFurniture();
+        createMinistryOfTruthFurniture();
+        createProleDistrictObjects();
         updatePlayerPosition();
     </script>
 </body>
