@@ -56,24 +56,19 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            color: black;
-            font-size: 10px;
-            font-weight: bold;
         }
         .furniture-label {
             position: absolute;
             color: white;
             font-size: 10px;
-        }
-        .ministry-desk-label {
-            top: -15px;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translate(-50%, -50%);
         }
-        .furniture-label-bottom {
-            bottom: -15px;
-            left: 50%;
-            transform: translateX(-50%);
+        .door {
+            position: absolute;
+            background-color: green;
+            z-index: 15;
         }
         .random-object {
             position: absolute;
@@ -102,60 +97,156 @@
     <script>
         const player = document.getElementById('player');
         const container = document.getElementById('gameContainer');
-        const victoryMansions = document.getElementById('victoryMansions');
-        const proleDistrict = document.getElementById('proleDistrict');
-        const ministryOfTruth = document.getElementById('ministryOfTruth');
+        const rooms = {
+            victoryMansions: document.getElementById('victoryMansions'),
+            ministryOfTruth: document.getElementById('ministryOfTruth'),
+            room101: document.getElementById('room101'),
+            proleDistrict: document.getElementById('proleDistrict')
+        };
 
-        // Initial player position in Victory Mansions
-        let playerX = 50;
-        let playerY = 50;
+        // Game state
+        const gameState = {
+            playerX: 50,
+            playerY: 50,
+            currentRoom: rooms.victoryMansions,
+            keys: {}
+        };
 
-        // Create furniture for Victory Mansions
-        function createFurniture() {
-            const desk = document.createElement('div');
-            desk.classList.add('furniture');
-            desk.style.width = '100px';
-            desk.style.height = '50px';
-            desk.style.left = '50px';
-            desk.style.top = '150px';
-            
-            const deskLabel = document.createElement('div');
-            deskLabel.classList.add('furniture-label', 'furniture-label-bottom');
-            deskLabel.textContent = 'Desk';
-            desk.appendChild(deskLabel);
-            
-            victoryMansions.appendChild(desk);
+        // Collision detection and movement
+        function handleMovement() {
+            const speed = 5;
+            let newX = gameState.playerX;
+            let newY = gameState.playerY;
 
-            const bed = document.createElement('div');
-            bed.classList.add('furniture');
-            bed.style.width = '120px';
-            bed.style.height = '80px';
-            bed.style.right = '50px';
-            bed.style.top = '150px';
-            
-            const bedLabel = document.createElement('div');
-            bedLabel.classList.add('furniture-label', 'furniture-label-bottom');
-            bedLabel.textContent = 'Bed';
-            bed.appendChild(bedLabel);
-            
-            victoryMansions.appendChild(bed);
+            // Determine movement based on pressed keys
+            if (gameState.keys['ArrowUp']) newY -= speed;
+            if (gameState.keys['ArrowDown']) newY += speed;
+            if (gameState.keys['ArrowLeft']) newX -= speed;
+            if (gameState.keys['ArrowRight']) newX += speed;
 
-            const telescreen = document.createElement('div');
-            telescreen.classList.add('furniture');
-            telescreen.style.width = '200px';
-            telescreen.style.height = '20px';
-            telescreen.style.top = '50px';
-            telescreen.style.left = '100px';
-            
-            const telescreenLabel = document.createElement('div');
-            telescreenLabel.classList.add('furniture-label', 'furniture-label-bottom');
-            telescreenLabel.textContent = 'Telescreen';
-            telescreen.appendChild(telescreenLabel);
-            
-            victoryMansions.appendChild(telescreen);
+            // Get room boundaries
+            const roomRect = gameState.currentRoom.getBoundingClientRect();
+            const playerWidth = 20;
+            const playerHeight = 20;
+
+            // Check room boundary collisions with bounce effect
+            if (newX < roomRect.left - container.offsetLeft) {
+                newX = roomRect.left - container.offsetLeft;
+            }
+            if (newX + playerWidth > roomRect.right - container.offsetLeft) {
+                newX = roomRect.right - container.offsetLeft - playerWidth;
+            }
+            if (newY < roomRect.top - container.offsetTop) {
+                newY = roomRect.top - container.offsetTop;
+            }
+            if (newY + playerHeight > roomRect.bottom - container.offsetTop) {
+                newY = roomRect.bottom - container.offsetTop - playerHeight;
+            }
+
+            // Check furniture collisions
+            const furnitureElements = gameState.currentRoom.querySelectorAll('.furniture');
+            furnitureElements.forEach(furniture => {
+                const furnitureRect = furniture.getBoundingClientRect();
+                
+                // Basic collision detection with bounce
+                if (
+                    newX < furnitureRect.right - container.offsetLeft &&
+                    newX + playerWidth > furnitureRect.left - container.offsetLeft &&
+                    newY < furnitureRect.bottom - container.offsetTop &&
+                    newY + playerHeight > furnitureRect.top - container.offsetTop
+                ) {
+                    // Determine collision side and adjust position
+                    if (gameState.playerX + playerWidth <= furnitureRect.left - container.offsetLeft) {
+                        newX = furnitureRect.left - container.offsetLeft - playerWidth;
+                    }
+                    if (gameState.playerX >= furnitureRect.right - container.offsetLeft) {
+                        newX = furnitureRect.right - container.offsetLeft;
+                    }
+                    if (gameState.playerY + playerHeight <= furnitureRect.top - container.offsetTop) {
+                        newY = furnitureRect.top - container.offsetTop - playerHeight;
+                    }
+                    if (gameState.playerY >= furnitureRect.bottom - container.offsetTop) {
+                        newY = furnitureRect.bottom - container.offsetTop;
+                    }
+                }
+            });
+
+            // Check for door crossings
+            const doors = gameState.currentRoom.querySelectorAll('.door');
+            doors.forEach(door => {
+                const doorRect = door.getBoundingClientRect();
+                if (
+                    newX < doorRect.right - container.offsetLeft &&
+                    newX + playerWidth > doorRect.left - container.offsetLeft &&
+                    newY < doorRect.bottom - container.offsetTop &&
+                    newY + playerHeight > doorRect.top - container.offsetTop
+                ) {
+                    // Determine which room to move to
+                    if (gameState.currentRoom === rooms.victoryMansions && door.parentElement === rooms.victoryMansions) {
+                        gameState.currentRoom = rooms.ministryOfTruth;
+                        newX = 50;
+                        newY = 50;
+                    } else if (gameState.currentRoom === rooms.ministryOfTruth && door.parentElement === rooms.ministryOfTruth) {
+                        gameState.currentRoom = rooms.room101;
+                        newX = 50;
+                        newY = 50;
+                    } else if (gameState.currentRoom === rooms.room101 && door.parentElement === rooms.room101) {
+                        gameState.currentRoom = rooms.proleDistrict;
+                        newX = 50;
+                        newY = 50;
+                    }
+                }
+            });
+
+            // Update player position
+            gameState.playerX = newX;
+            gameState.playerY = newY;
+            player.style.left = `${newX}px`;
+            player.style.top = `${newY}px`;
         }
 
-        // Create desk for Ministry of Truth
+        // Key event listeners
+        document.addEventListener('keydown', (event) => {
+            gameState.keys[event.key] = true;
+        });
+
+        document.addEventListener('keyup', (event) => {
+            gameState.keys[event.key] = false;
+        });
+
+        // Game loop
+        function gameLoop() {
+            handleMovement();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Existing room setup functions remain the same as in previous version
+        function createFurniture() {
+            const furnitureData = [
+                { width: 100, height: 50, left: 50, top: 150, label: 'Desk' },
+                { width: 120, height: 80, right: 50, top: 150, label: 'Bed' },
+                { width: 200, height: 20, left: 100, top: 50, label: 'Telescreen' }
+            ];
+
+            furnitureData.forEach(data => {
+                const furniture = document.createElement('div');
+                furniture.classList.add('furniture');
+                furniture.style.width = `${data.width}px`;
+                furniture.style.height = `${data.height}px`;
+                
+                if (data.left !== undefined) furniture.style.left = `${data.left}px`;
+                if (data.right !== undefined) furniture.style.right = `${data.right}px`;
+                furniture.style.top = `${data.top}px`;
+                
+                const label = document.createElement('div');
+                label.classList.add('furniture-label');
+                label.textContent = data.label;
+                furniture.appendChild(label);
+                
+                rooms.victoryMansions.appendChild(furniture);
+            });
+        }
+
         function createMinistryOfTruthFurniture() {
             const desk = document.createElement('div');
             desk.classList.add('furniture');
@@ -165,16 +256,15 @@
             desk.style.left = '100px';
             
             const deskLabel = document.createElement('div');
-            deskLabel.classList.add('furniture-label', 'ministry-desk-label');
+            deskLabel.classList.add('furniture-label');
             deskLabel.textContent = 'Ministry Desk';
             desk.appendChild(deskLabel);
             
-            ministryOfTruth.appendChild(desk);
+            rooms.ministryOfTruth.appendChild(desk);
         }
 
-        // Create random objects in Prole District
         function createProleDistrictObjects() {
-            const proleRect = proleDistrict.getBoundingClientRect();
+            const proleRect = rooms.proleDistrict.getBoundingClientRect();
             
             for (let i = 0; i < 4; i++) {
                 const object = document.createElement('div');
@@ -182,46 +272,53 @@
                 object.style.width = '20px';
                 object.style.height = '20px';
                 
-                // Constrain random position within Prole District
                 object.style.left = `${Math.random() * (proleRect.width - 40)}px`;
                 object.style.top = `${Math.random() * (proleRect.height - 40)}px`;
                 
-                proleDistrict.appendChild(object);
+                rooms.proleDistrict.appendChild(object);
             }
         }
 
-        function updatePlayerPosition() {
-            player.style.left = `${playerX}px`;
-            player.style.top = `${playerY}px`;
+        function createDoors() {
+            const doorWidth = 40;
+            const doorHeight = 10;
+
+            // Door from Victory Mansions to Ministry of Truth (top right)
+            const victoryToMinistry = document.createElement('div');
+            victoryToMinistry.classList.add('door');
+            victoryToMinistry.style.width = `${doorWidth}px`;
+            victoryToMinistry.style.height = `${doorHeight}px`;
+            victoryToMinistry.style.top = '0px';
+            victoryToMinistry.style.right = '200px';
+            rooms.victoryMansions.appendChild(victoryToMinistry);
+
+            // Door from Ministry of Truth to Room 101 (bottom right)
+            const ministryToRoom101 = document.createElement('div');
+            ministryToRoom101.classList.add('door');
+            ministryToRoom101.style.width = `${doorWidth}px`;
+            ministryToRoom101.style.height = `${doorHeight}px`;
+            ministryToRoom101.style.bottom = '0px';
+            ministryToRoom101.style.right = '200px';
+            rooms.ministryOfTruth.appendChild(ministryToRoom101);
+
+            // Door from Room 101 to Prole District (bottom left)
+            const room101ToProle = document.createElement('div');
+            room101ToProle.classList.add('door');
+            room101ToProle.style.width = `${doorWidth}px`;
+            room101ToProle.style.height = `${doorHeight}px`;
+            room101ToProle.style.bottom = '0px';
+            room101ToProle.style.left = '200px';
+            rooms.room101.appendChild(room101ToProle);
         }
-
-        function constrainPlayerPosition() {
-            const containerRect = container.getBoundingClientRect();
-            const playerRect = player.getBoundingClientRect();
-
-            playerX = Math.max(0, Math.min(playerX, containerRect.width - playerRect.width));
-            playerY = Math.max(0, Math.min(playerY, containerRect.height - playerRect.height));
-        }
-
-        document.addEventListener('keydown', (event) => {
-            const speed = 10;
-
-            switch(event.key) {
-                case 'ArrowUp': playerY -= speed; break;
-                case 'ArrowDown': playerY += speed; break;
-                case 'ArrowLeft': playerX -= speed; break;
-                case 'ArrowRight': playerX += speed; break;
-            }
-
-            constrainPlayerPosition();
-            updatePlayerPosition();
-        });
 
         // Initialize game elements
         createFurniture();
         createMinistryOfTruthFurniture();
         createProleDistrictObjects();
-        updatePlayerPosition();
+        createDoors();
+
+        // Start game loop
+        gameLoop();
     </script>
 </body>
 </html>
