@@ -94,6 +94,31 @@ class Dialog {
 
 // Main Script
 document.addEventListener('DOMContentLoaded', () => {
+
+    let obedienceScore = 0;
+    let rebellionScore = 0;
+    let suspicion = 0;
+    
+    const updateScores = () => {
+        document.getElementById('obedienceScore').textContent = `Obedience: ${obedienceScore}`;
+        document.getElementById('rebellionScore').textContent = `Rebellion: ${rebellionScore}`;
+        document.getElementById('suspicionDisplay').textContent = `Suspicion: ${suspicion}%`;
+    };
+
+    const increaseSuspicion = (amount) => {
+        suspicion = Math.min(100, suspicion + amount);
+        updateScores();
+        if (suspicion >= 100) {
+            alert('You have been captured by the Thought Police!');
+            location.reload();
+        }
+    };
+    
+    const decreaseSuspicion = (amount) => {
+        suspicion = Math.max(0, suspicion - amount);
+        updateScores();
+    };    
+
     const container = document.getElementById('gameContainer');
     const player = new Player(container);
 
@@ -106,8 +131,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     victoryMansions.addFurniture(new Furniture('Telescreen', 200, 20, 50, 100, () => {
         dialog.show('The telescreen blares Party propaganda. Do you listen or turn it off?', [
-            { text: 'Listen', action: () => alert('You feel more loyal to the Party.') },
-            { text: 'Turn it off', action: () => alert('A dangerous act of rebellion!') }
+            {
+                text: 'Listen',
+                action: () => {
+                    obedienceScore += 10; // Increase obedience points
+                    decreaseSuspicion(5); // Reduce suspicion
+                    alert('You feel more loyal to the Party.');
+                    updateScores();
+                }
+            },
+            {
+                text: 'Turn it off',
+                action: () => {
+                    rebellionScore += 50; // Increase rebellion points
+                    increaseSuspicion(20); // Increase suspicion
+                    alert('A dangerous act of rebellion!');
+                    updateScores();
+                }
+            }
         ]);
     }));
 

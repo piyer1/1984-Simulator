@@ -7,6 +7,6 @@
 - add objects to game as well as dialog boxes that players can interact with
 - add basic endings in pop-up window
 
-## Day 4-5 (Add Stor/scoring)
+## Day 4-5 (Add Story/scoring)
 - use existing features to create a story that players can progress through (can but doesn't have to align with the actual book)
 - or, (simpler option), implement some kind of scoring system in which players try to reach a high score before being captured
