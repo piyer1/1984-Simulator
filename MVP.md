@@ -1,20 +1,12 @@
 # MVP Implementation Plan
 
-## Day 1-2 (Core Framework)
+## Day 1-3 (Core Framework and Essential Features) (Completed)
 - **set up basics**
-- initialize game
-- update game status...
+- initialize game with player
+- enable movement through different settings of game
+- add objects to game as well as dialog boxes that players can interact with
+- add basic endings in pop-up window
 
-## Day 3-4 (Essential Features)
-- **set up the loyalty thing**
-- loyalty meter
-- suspicion level
-- meter values
-- applyConsequences(action)
-- perform action
-- adjust meter...
-
-## Day 5 (Enhancement & Testing)
-- **everything else**
-- endgame...
-- Final testing and refinement
+## Day 4-5 (Add Stor/scoring)
+- use existing features to create a story that players can progress through (can but doesn't have to align with the actual book)
+- or, (simpler option), implement some kind of scoring system in which players try to reach a high score before being captured
