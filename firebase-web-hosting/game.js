@@ -109,15 +109,33 @@ document.addEventListener('DOMContentLoaded', () => {
         suspicion = Math.min(100, suspicion + amount);
         updateScores();
         if (suspicion >= 100) {
-            alert('You have been captured by the Thought Police!');
-            location.reload();
+            showGameOver();
         }
-    };
+    };    
     
     const decreaseSuspicion = (amount) => {
         suspicion = Math.max(0, suspicion - amount);
         updateScores();
-    };    
+    };
+
+    const showGameOver = () => {
+        const gameOverElement = document.getElementById('gameOver');
+    
+        document.getElementById('obedienceScoreDisplay').textContent = `Obedience: ${obedienceScore}`;
+        document.getElementById('rebellionScoreDisplay').textContent = `Rebellion: ${rebellionScore}`;
+    
+        gameOverElement.style.display = 'block';
+    
+        const restartButton = document.getElementById('restartButton');
+        restartButton.addEventListener('click', () => {
+            obedienceScore = 0;
+            rebellionScore = 0;
+            suspicion = 0;
+            updateScores();
+    
+            gameOverElement.style.display = 'none';
+        }, { once: true });
+    };            
 
     const container = document.getElementById('gameContainer');
     const player = new Player(container);
@@ -134,8 +152,8 @@ document.addEventListener('DOMContentLoaded', () => {
             {
                 text: 'Listen',
                 action: () => {
-                    obedienceScore += 10; // Increase obedience points
-                    decreaseSuspicion(5); // Reduce suspicion
+                    obedienceScore += 10;
+                    decreaseSuspicion(5);
                     alert('You feel more loyal to the Party.');
                     updateScores();
                 }
@@ -143,8 +161,8 @@ document.addEventListener('DOMContentLoaded', () => {
             {
                 text: 'Turn it off',
                 action: () => {
-                    rebellionScore += 50; // Increase rebellion points
-                    increaseSuspicion(20); // Increase suspicion
+                    rebellionScore += 50;
+                    increaseSuspicion(20);
                     alert('A dangerous act of rebellion!');
                     updateScores();
                 }
