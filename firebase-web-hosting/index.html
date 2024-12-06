@@ -8,6 +8,20 @@
 </head>
 <body>
     <div id="gameContainer"></div>
+    <div id="scoreBoard">
+        <div id="obedienceScore">Obedience: 0</div>
+        <div id="rebellionScore">Rebellion: 0</div>
+        <div id="suspicionDisplay">Suspicion: 0%</div>
+    </div>
+    <div id="gameOver" style="display: none;">
+        <h1>Game Over</h1>
+        <p>You have been captured by the Thought Police!</p>
+        <div id="finalScores">
+            <p id="obedienceScoreDisplay">Obedience: 0</p>
+            <p id="rebellionScoreDisplay">Rebellion: 0</p>
+        </div>
+        <button id="restartButton">Restart</button>
+    </div>              
     <script src="game.js" type="module"></script>
 </body>
 </html>
