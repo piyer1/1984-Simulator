@@ -11,6 +11,7 @@ class Player {
         this.playerSize = 20;
         container.appendChild(this.element);
         this.updatePosition();
+        this.updateColor(0); // Initialize with 0 obedience
     }
 
     move(direction) {
@@ -35,6 +36,12 @@ class Player {
     updatePosition() {
         this.element.style.left = `${this.x}px`;
         this.element.style.top = `${this.y}px`;
+    }
+
+    updateColor(obedienceScore) {
+        // Calculate how grey the player should be (0 = white, 100 = grey)
+        const greyValue = Math.floor(255 - (obedienceScore * 1.55)); // 255 to 100
+        this.element.style.backgroundColor = `rgb(${greyValue}, ${greyValue}, ${greyValue})`;
     }
 }
 
@@ -139,8 +146,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('obedienceScore').textContent = `Obedience: ${obedienceScore}`;
         document.getElementById('rebellionScore').textContent = `Rebellion: ${rebellionScore}`;
         document.getElementById('suspicionDisplay').textContent = `Suspicion: ${suspicion}%`;
+        player.updateColor(obedienceScore); // Add this line
     };
-
+    
     const increaseSuspicion = (amount) => {
         suspicion = Math.min(100, suspicion + amount);
         updateScores();
@@ -193,11 +201,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Clear existing NPCs
         npcs.forEach(npc => npc.destroy());
         npcs.length = 0;
-        
+
         // Create new NPCs
         const proleDistrict = document.getElementById('proleDistrict');
         console.log('Found prole district for spawning:', proleDistrict);
-        
+
         for (let i = 0; i < numberOfNPCs; i++) {
             console.log('Creating prole', i);
             npcs.push(new ProleNPC(container, proleDistrict));
