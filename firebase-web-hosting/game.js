@@ -11,7 +11,7 @@ class Player {
         this.playerSize = 20;
         container.appendChild(this.element);
         this.updatePosition();
-        this.updateColor(0); // Initialize with 0 obedience
+        this.updateColor(0, 0); // Initialize with 0 obedience and 0 rebellion
     }
 
     move(direction) {
@@ -31,17 +31,30 @@ class Player {
                 break;
         }
         this.updatePosition();
-    }
+    }        
 
     updatePosition() {
         this.element.style.left = `${this.x}px`;
         this.element.style.top = `${this.y}px`;
     }
 
-    updateColor(obedienceScore) {
-        // Calculate how grey the player should be (0 = white, 100 = grey)
-        const greyValue = Math.floor(255 - (obedienceScore * 1.55)); // 255 to 100
-        this.element.style.backgroundColor = `rgb(${greyValue}, ${greyValue}, ${greyValue})`;
+    updateColor(obedienceScore, rebellionScore) {
+        // Calculate the balance (-100 would be max rebellion, +100 would be max obedience)
+        const balance = obedienceScore - rebellionScore;
+        // Calculate how grey the player should be (255 = white, 100 = grey)
+        const greyValue = Math.floor(255 - (Math.abs(balance) * 1.55));
+        
+        if (balance > 0) {
+            // More obedient - grey
+            this.element.style.backgroundColor = `rgb(${greyValue}, ${greyValue}, ${greyValue})`;
+        } else if (balance < 0) {
+            // More rebellious - pink tint
+            const pinkValue = Math.min(255, greyValue + 50); // Add a pink tint
+            this.element.style.backgroundColor = `rgb(${pinkValue}, ${greyValue}, ${greyValue})`;
+        } else {
+            // Perfectly balanced - pure white
+            this.element.style.backgroundColor = 'rgb(255, 255, 255)';
+        }
     }
 }
 
@@ -146,9 +159,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('obedienceScore').textContent = `Obedience: ${obedienceScore}`;
         document.getElementById('rebellionScore').textContent = `Rebellion: ${rebellionScore}`;
         document.getElementById('suspicionDisplay').textContent = `Suspicion: ${suspicion}%`;
-        player.updateColor(obedienceScore); // Add this line
+        player.updateColor(obedienceScore, rebellionScore); // Add this line
     };
-    
+
     const increaseSuspicion = (amount) => {
         suspicion = Math.min(100, suspicion + amount);
         updateScores();
