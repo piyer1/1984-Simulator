@@ -30,7 +30,7 @@ class Player {
                 break;
         }
         this.updatePosition();
-    }        
+    }
 
     updatePosition() {
         this.element.style.left = `${this.x}px`;
@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let obedienceScore = 0;
     let rebellionScore = 0;
     let suspicion = 0;
-    
+
     const updateScores = () => {
         document.getElementById('obedienceScore').textContent = `Obedience: ${obedienceScore}`;
         document.getElementById('rebellionScore').textContent = `Rebellion: ${rebellionScore}`;
@@ -147,8 +147,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (suspicion >= 100) {
             showGameOver();
         }
-    };    
-    
+    };
+
     const decreaseSuspicion = (amount) => {
         suspicion = Math.max(0, suspicion - amount);
         updateScores();
@@ -156,24 +156,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const showGameOver = () => {
         const gameOverElement = document.getElementById('gameOver');
-    
+
         document.getElementById('obedienceScoreDisplay').textContent = `Obedience: ${obedienceScore}`;
         document.getElementById('rebellionScoreDisplay').textContent = `Rebellion: ${rebellionScore}`;
-    
+
         gameOverElement.style.display = 'block';
-    
+
         const restartButton = document.getElementById('restartButton');
         restartButton.addEventListener('click', () => {
             obedienceScore = 0;
             rebellionScore = 0;
             suspicion = 0;
             updateScores();
-    
+
             gameOverElement.style.display = 'none';
         }, { once: true });
-    };            
+    };
 
+    console.log('Game starting...');
     const container = document.getElementById('gameContainer');
+    console.log('Container found:', container);
     const player = new Player(container);
 
     const victoryMansions = new Room('victoryMansions', 'Victory Mansions', container);
@@ -182,6 +184,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const proleDistrict = new Room('proleDistrict', 'Prole District', container);
 
     const dialog = new Dialog(container);
+
+    const npcs = [];
+    const numberOfNPCs = 10;
+
+    function spawnProles() {
+        console.log('Attempting to spawn proles...');
+        // Clear existing NPCs
+        npcs.forEach(npc => npc.destroy());
+        npcs.length = 0;
+        
+        // Create new NPCs
+        const proleDistrict = document.getElementById('proleDistrict');
+        console.log('Found prole district for spawning:', proleDistrict);
+        
+        for (let i = 0; i < numberOfNPCs; i++) {
+            console.log('Creating prole', i);
+            npcs.push(new ProleNPC(container, proleDistrict));
+        }
+        console.log('Finished spawning proles');
+    }
+
+    // Call spawnProles after a short delay to ensure the room is fully rendered
+    console.log('Setting up prole spawn...');
+    setTimeout(spawnProles, 500);
 
     victoryMansions.addFurniture(new Furniture('Telescreen', 200, 20, 50, 100, () => {
         dialog.show('The telescreen blares Party propaganda. Do you listen or turn it off?', [
@@ -274,9 +300,80 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         ]);
+
+        // Add collision detection to player movement
+        document.addEventListener('keydown', event => {
+            player.move(event.key);
+            // Check for collisions after each movement
+            npcs.forEach(npc => {
+                if (npc.isRebel && npc.checkCollision(player)) {
+                    dialog.show('You\'ve encountered a rebel in the Prole District!', [
+                        {
+                            text: 'Join their cause',
+                            action: () => {
+                                rebellionScore += 15;
+                                increaseSuspicion(10);
+                                alert('You\'ve made contact with the resistance!');
+                                updateScores();
+                            }
+                        },
+                        {
+                            text: 'Report them',
+                            action: () => {
+                                obedienceScore += 20;
+                                decreaseSuspicion(5);
+                                alert('You\'ve reported a thoughtcriminal to the Party.');
+                                updateScores();
+                            }
+                        }
+                    ]);
+                }
+            });
+        });
+
+        // Make sure your game restart logic includes respawning proles
+        const restartButton = document.getElementById('restartButton');
+        if (restartButton) {
+            restartButton.addEventListener('click', () => {
+                // Your existing restart logic
+                obedienceScore = 0;
+                rebellionScore = 0;
+                suspicion = 0;
+                updateScores();
+
+                // Respawn proles
+                spawnProles();
+
+                document.getElementById('gameOver').style.display = 'none';
+            });
+        }
     }));
 
     document.addEventListener('keydown', event => {
         player.move(event.key);
+        npcs.forEach(npc => {
+            if (npc.isRebel && npc.checkCollision(player)) {
+                dialog.show('You\'ve encountered a rebel in the Prole District!', [
+                    {
+                        text: 'Join their cause',
+                        action: () => {
+                            rebellionScore += 15;
+                            increaseSuspicion(10);
+                            alert('You\'ve made contact with the resistance!');
+                            updateScores();
+                        }
+                    },
+                    {
+                        text: 'Report them',
+                        action: () => {
+                            obedienceScore += 20;
+                            decreaseSuspicion(5);
+                            alert('You\'ve reported a thoughtcriminal to the Party.');
+                            updateScores();
+                        }
+                    }
+                ]);
+            }
+        });
     });
 });

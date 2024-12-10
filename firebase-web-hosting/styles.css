@@ -28,6 +28,20 @@ body {
     align-items: flex-start;
     padding-top: 20px;
 }
+.prole-npc {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    background-color: #808080;
+    z-index: 15;
+}
+.prole-npc.rebel {
+    background-color: #ffcccc;
+}
+#proleDistrict {
+    position: relative;
+    overflow: visible;
+}
 .room-label {
     position: absolute;
     top: 5px;
