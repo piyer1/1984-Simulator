@@ -1,5 +1,3 @@
-Old .firebaserc: simulator-aabf8
-
 # 1984 Simulator
 
 # Code Overview - 1984 Simulator
