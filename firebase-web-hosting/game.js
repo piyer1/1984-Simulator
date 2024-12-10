@@ -148,12 +148,43 @@ class Dialog {
     }
 }
 
-// Main Script
 document.addEventListener('DOMContentLoaded', () => {
-
     let obedienceScore = 0;
     let rebellionScore = 0;
     let suspicion = 0;
+
+
+    // Leaderboard initialization
+    // We'll store the scores as an array of numbers in localStorage under the key "leaderboard".
+    const loadLeaderboard = () => {
+        const stored = localStorage.getItem('leaderboard');
+        return stored ? JSON.parse(stored) : [];
+    };
+
+    const saveLeaderboard = (scores) => {
+        localStorage.setItem('leaderboard', JSON.stringify(scores));
+    };
+
+    let leaderboard = loadLeaderboard();
+
+    const updateLeaderboardDisplay = () => {
+        const leaderboardContainer = document.getElementById('leaderboard');
+        leaderboardContainer.innerHTML = '<h3>Top 5 Scores</h3>';
+        if (leaderboard.length === 0) {
+            const noScore = document.createElement('p');
+            noScore.textContent = 'No scores yet.';
+            leaderboardContainer.appendChild(noScore);
+        } else {
+            const ol = document.createElement('ol');
+            leaderboard.forEach(score => {
+                const li = document.createElement('li');
+                li.textContent = score;
+                ol.appendChild(li);
+            });
+            leaderboardContainer.appendChild(ol);
+        }
+    };
+
 
     const updateScores = () => {
         document.getElementById('obedienceScore').textContent = `Obedience: ${obedienceScore}`;
@@ -182,6 +213,17 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('rebellionScoreDisplay').textContent = `Rebellion: ${rebellionScore}`;
 
         gameOverElement.style.display = 'block';
+
+
+        // Update leaderboard with this round's score
+        const totalScore = obedienceScore + rebellionScore;
+        leaderboard.push(totalScore);
+        // Sort descending and keep top 5
+        leaderboard.sort((a,b) => b - a);
+        leaderboard = leaderboard.slice(0, 5);
+        saveLeaderboard(leaderboard);
+        updateLeaderboardDisplay();
+    
 
         const restartButton = document.getElementById('restartButton');
         restartButton.addEventListener('click', () => {
@@ -276,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ]);
     }));
 
-    victoryMansions.addFurniture(new Furniture('Memory Hole', 100, 100, 165, 400, () => {
+    victoryMansions.addFurniture(new Furniture('Memory Hole', 100, 100, 165, 400, function() {
         dialog.show('You look at the Memory Hole, ready to destroy any evidence of thoughtcrime.', [
             {
                 text: 'Throw away the evidence',
@@ -370,6 +412,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }));
 
+    // New furniture in Prole District
+    proleDistrict.addFurniture(new Furniture('Charrington\'s Shop', 120, 60, 200, 250, () => {
+        dialog.show('You see a dusty shelf in Mr. Charrington\'s shop, offering a small glass paperweight. Do you buy it?', [
+            {
+                text: 'Buy it',
+                action: () => {
+                    rebellionScore += 15;
+                    increaseSuspicion(15);
+                    alert('You feel a spark of individuality rekindled. But be cautious—suspicion is rising.');
+                    updateScores();
+                }
+            },
+            {
+                text: 'Walk away',
+                action: () => {
+                    obedienceScore += 10;
+                    decreaseSuspicion(10);
+                    alert('You resist the temptation, maintaining a low profile.');
+                    updateScores();
+                }
+            }
+        ]);
+    }));
+
     document.addEventListener('keydown', event => {
         player.move(event.key);
         npcs.forEach(npc => {
@@ -397,4 +463,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // Initialize leaderboard display
+    updateLeaderboardDisplay();
 });

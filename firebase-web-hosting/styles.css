@@ -205,3 +205,15 @@ body {
 .furniture.work-desk:hover {
     opacity: 0.8;
 }
+
+#leaderboard {
+    margin-top: 20px;
+    font-size: 14px;
+}
+#leaderboard h3 {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+}
+#leaderboard ol {
+    padding-left: 20px;
+}
