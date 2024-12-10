@@ -8,5 +8,5 @@
 - add basic endings in pop-up window
 
 ## Day 4-5 (Add Story/scoring)
-- use existing features to create a story that players can progress through (can but doesn't have to align with the actual book) (I added 3 more furnitures and made the walls a border so the player can't cross)
+- use existing features to create a story that players can progress through (can but doesn't have to align with the actual book) (I added 3 more furnitures and made the walls a border so the player can't cross) `Milo Addition: added proles to interact with in the prole district, as well as making it so the player either ends up becoming a prole or a rebel`
 - (Completed) or, (simpler option), implement some kind of scoring system in which players try to reach a high score before being captured 
