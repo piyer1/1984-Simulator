@@ -2,10 +2,15 @@ class ProleNPC {
     constructor(container, districtElement) {
         this.element = document.createElement('div');
         this.element.className = 'prole-npc';
-        this.isRebel = Math.random() < 0.1;
         
+        // Let's explicitly set and verify rebel status
+        this.isRebel = Math.random() < 0.1;  // 10% chance
         if (this.isRebel) {
+            console.log('Created a rebel prole');  // Debug log
             this.element.classList.add('rebel');
+            this.element.style.backgroundColor = '#ffcccc';  // Explicitly set color
+        } else {
+            this.element.style.backgroundColor = '#808080';  // Regular prole color
         }
         
         const districtRect = districtElement.getBoundingClientRect();
@@ -15,10 +20,14 @@ class ProleNPC {
         this.minY = 0;
         this.maxY = districtRect.height - 15;
         
-        this.x = this.minX;
-        this.y = Math.random() * (this.maxY - this.minY) + this.minY;
+        this.x = Math.random() * this.maxX;
+        this.y = Math.random() * this.maxY;
         
-        this.speed = 2; // Increased for smoother movement
+        const baseSpeed = 20;
+        this.speed = baseSpeed * (0.95 + Math.random() * 0.1);
+        
+        const baseInterval = 2000;
+        this.moveInterval = baseInterval * (0.9 + Math.random() * 0.2);
         
         districtElement.appendChild(this.element);
         this.updatePosition();
@@ -31,16 +40,34 @@ class ProleNPC {
     }
     
     startMoving() {
-        this.moveInterval = setInterval(() => {
-            if (this.x < this.maxX) {
-                this.x += this.speed;
+        const move = () => {
+            if (this.x + this.speed >= this.maxX) {
+                // When about to exceed boundary, remove transition,
+                // move to start, then restore transition
+                this.element.style.transition = 'none';
+                this.x = this.minX - this.speed; // Start slightly off-screen
+                this.y = Math.random() * this.maxY;
+                this.updatePosition();
+                
+                // Force a reflow
+                this.element.offsetHeight;
+                
+                // Restore transition and move to first visible position
+                this.element.style.transition = 'all 0.5s ease-in-out';
+                this.x = this.minX;
                 this.updatePosition();
             } else {
-                this.x = this.minX;
-                this.y = Math.random() * (this.maxY - this.minY) + this.minY;
+                this.x += this.speed;
                 this.updatePosition();
             }
-        }, 33); // Adjusted for smoother movement (approx. 30fps)
+            
+            // Schedule next movement using prole's unique interval
+            setTimeout(move, this.moveInterval);
+        };
+        
+        // Initial delay random between 0 and the move interval
+        // This creates the initial offset between proles
+        setTimeout(move, Math.random() * this.moveInterval);
     }
     
     checkCollision(player) {
@@ -54,7 +81,6 @@ class ProleNPC {
     }
     
     destroy() {
-        clearInterval(this.moveInterval);
         this.element.remove();
     }
 }
